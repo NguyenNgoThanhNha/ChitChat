@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/UserModel.js";
 import { compare } from "bcrypt";
-
+import { renameSync, unlinkSync } from "fs"
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 const createToken = (email, userId) => {
     return jwt.sign({ email, userId }, process.env.JWT_KEY, {
@@ -115,7 +115,7 @@ const UpdateProfile = async (req, res) => {
         const userData = await User.findByIdAndUpdate(userId, {
             firstName, lastName, color, profileSetup: true
         }, { new: true, runValidators: true })
-        console.log(userId)
+
         if (!userData) {
             return res.status(404).json({ message: "User with the given id not found." })
         }
@@ -127,9 +127,63 @@ const UpdateProfile = async (req, res) => {
                 profileSetup: userData.profileSetup,
                 firstName: userData.firstName,
                 lastName: userData.lastName,
-                image: userData.image,
+                image: userData?.image,
                 profileSetup: userData.profileSetup
             }
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Something went wrong" })
+    }
+}
+
+const AddProfileImage = async (req, res) => {
+    try {
+        console.log(req.file)
+        // Check if file is uploaded
+        if (!req.file) {
+            return res.status(400).json({ message: "File is required!" });
+        }
+
+        // Create a new file name with a timestamp
+        const date = Date.now();
+        const fileName = "upload/profiles/" + date + req.file.originalname;
+
+        // Rename the file with the new name
+        renameSync(req.file.path, fileName);
+
+        // Update the user's profile image in the database
+        const updateUser = await User.findByIdAndUpdate(req.userId, { image: fileName }, { new: true, runValidators: true });
+
+        // Send the updated image path in the response
+        return res.status(200).json({
+            image: updateUser.image
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
+const DeleteProfileImage = async (req, res) => {
+    try {
+        const { userId } = req;
+
+        const user = await User.findById(userId)
+
+        if (!user) {
+            return res.status(404).json({ message: "User with the given id not found." })
+        }
+
+        if (user.image) {
+            unlinkSync(user.image)
+        }
+
+        user.image = null;
+        await user.save();
+
+        return res.status(200).json({
+            message: "Profile image delete successfully."
         })
     } catch (error) {
         console.log(error);
@@ -141,5 +195,7 @@ export default {
     SignUp,
     SignIn,
     GetUserInFo,
-    UpdateProfile
+    UpdateProfile,
+    AddProfileImage,
+    DeleteProfileImage
 }
