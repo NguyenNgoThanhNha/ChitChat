@@ -7,14 +7,17 @@ const userSchema = new mongoose.Schema({
     lastName: { type: String, required: false },
     image: { type: String, required: false },
     color: { type: Number, required: false },
-    profileSetup: { type: Boolean, required: false }
+    profileSetup: { type: Boolean, required: false, default: false }
 })
 
-userSchema.pre("save", async (next) => {
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
+        return next();
+    }
     const salt = await genSalt();
-    this.password = await hash(this.password, salt)
+    this.password = await hash(this.password, salt);
     next();
-})
+});
 
 const User = mongoose.model("User", userSchema);
 export default User
