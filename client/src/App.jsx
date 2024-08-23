@@ -6,6 +6,8 @@ import { useAppStore } from './store/store'
 import { useEffect, useState } from 'react'
 import { apiClient } from './lib/api.client'
 import { GET_USER_INFO_ROUTE } from './utils/constant'
+import Loading from './components/Loading'
+import { toast } from 'sonner'
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
@@ -16,7 +18,6 @@ const PrivateRoute = ({ children }) => {
 // handle after login then not navigate to login
 const AuthRoute = ({ children }) => {
   const { userInfo } = useAppStore();
-  const navigate = useNavigate();
   const isAuthenticated = !!userInfo;
   return isAuthenticated ? <Navigate to="/chat" /> : children
 }
@@ -34,9 +35,8 @@ function App() {
         } else {
           setUserInfo(undefined)
         }
-        console.log(response)
       } catch (error) {
-        toast.error(error.response?.data?.message || "Get Info User Failed");
+        // toast.error(error.response?.data?.message || "Get Info User Failed");
         setUserInfo(undefined)
       } finally {
         setLoading(false)
@@ -47,7 +47,11 @@ function App() {
     } else {
       setLoading(false)
     }
-  }, [userInfo, setUserInfo])
+  }, [userInfo])
+
+  if (loading) {
+    return <Loading />
+  }
 
   return (
     <BrowserRouter>

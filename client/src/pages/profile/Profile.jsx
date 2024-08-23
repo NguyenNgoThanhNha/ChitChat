@@ -2,14 +2,14 @@ import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { colors, getColor } from '@/lib/utils';
 import { useAppStore } from '@/store/store'
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IoArrowBack } from "react-icons/io5";
 import { FaTrash, FaPlus } from "react-icons/fa"
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api.client';
-import { UPDATE_PROFILE_ROUTE } from '@/utils/constant';
+import { ADD_PROFILE_IMAGE_ROUTE, DELETE_PROFILE_IMAGE_ROUTE, HOST, UPDATE_PROFILE_ROUTE } from '@/utils/constant';
 import { useNavigate } from 'react-router-dom';
 const Profile = () => {
     const { userInfo, setUserInfo } = useAppStore();
@@ -20,6 +20,20 @@ const Profile = () => {
     const [selectedColor, setSelectedColor] = useState(0);
     const [updateProfileClicked, setUpdateProfileClicked] = useState(false);
     const navigate = useNavigate();
+    const fileInputRef = useRef(null)
+
+    useEffect(() => {
+        if (userInfo.profileSetup) {
+            setFirstName(userInfo.firstName);
+            setLastName(userInfo.lastName);
+            setSelectedColor(userInfo.color)
+        }
+        if (userInfo.image) {
+            setImage(`${HOST}/${userInfo.image}`)
+        }
+    }, [userInfo, setUserInfo])
+
+    console.log(image)
 
     const validateProfile = () => {
         if (!firstName.length) {
@@ -38,8 +52,8 @@ const Profile = () => {
         if (validateProfile()) {
             try {
                 const response = await apiClient.post(UPDATE_PROFILE_ROUTE, { firstName, lastName, color: selectedColor }, { withCredentials: true })
-                if (response.status === 200 && response.data) {
-                    setUserInfo({ ...response.data.user })
+                if (response.status === 200 && response.data.user) {
+                    setUserInfo(response.data.user)
                     toast.success("Update Profile Success!")
                     navigate("/chat")
                 }
@@ -49,10 +63,69 @@ const Profile = () => {
         }
     }
 
+    const handleNavigate = () => {
+        if (userInfo.profileSetup) {
+            navigate("/chat");
+        } else {
+            toast.info("Please setup profile to continue.");
+        }
+    }
+
+    const handleFileInputClick = () => {
+        fileInputRef.current.click();
+    }
+
+    const handleImageChange = async (event) => {
+        try {
+            const file = event.target.files[0];
+
+            // Kiểm tra nếu có file được chọn
+            if (file) {
+                const formData = new FormData();
+                formData.append("profile-image", file);
+
+                // Gửi yêu cầu tới server để cập nhật hình ảnh
+                const response = await apiClient.post(ADD_PROFILE_IMAGE_ROUTE, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    withCredentials: true
+                });
+
+                // Kiểm tra phản hồi từ server
+                if (response.status === 200 && response.data) {
+                    setUserInfo({ ...userInfo, image: response.data.image })
+                    toast.success("Image updated successfully!");
+                } else {
+                    toast.error("Failed to update image. Please try again.");
+                }
+            } else {
+                toast.error("No file selected. Please choose an image to upload.");
+            }
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            toast.error("An error occurred while updating the image. Please try again.");
+        }
+    }
+
+
+    const handleDeleteImage = async () => {
+        try {
+            const response = await apiClient.delete(DELETE_PROFILE_IMAGE_ROUTE, { withCredentials: true });
+            if (response.status === 200) {
+                setUserInfo({ ...userInfo, image: null });
+                toast.success(response.data.message);
+                setImage(null);
+            }
+        } catch (error) {
+            toast.error("An error occurred while deleting the image. Please try again.")
+        }
+    }
+
     return (
         <div className='bg-[#1b1c24] h-[100vh] flex items-center justify-center flex-col gap-10'>
             <div className='flex flex-col gap-10 w-[80vw] md:w-max'>
-                <div>
+                <div onClick={handleNavigate}>
                     <IoArrowBack className='text-4xl lg:text-6xl text-white/90 cursor-pointer' />
                 </div>
                 <div className='grid grid-cols-2'>
@@ -66,18 +139,20 @@ const Profile = () => {
                                     :
                                     (
                                         <div className={`uppercase h-32 w-32 md:w-48 md:h-48 text-5xl border-[1px] flex items-center justify-center rounded-full ${getColor(selectedColor)}`} >
-                                            {firstName ? firstName.split("").shift() : userInfo?.email.split("").shift()}
+                                            {firstName ? firstName.split("").shift() : userInfo.email?.split("").shift()}
                                         </div>
                                     )
                             }
                         </Avatar>
                         {hovered && (
-                            <div className='absolute inset-0 flex items-center justify-center bg-black/50 ring-fuchsia-50 rounded-full'>
+                            <div className='absolute inset-0 flex items-center justify-center bg-black/50 ring-fuchsia-50 rounded-full'
+                                onClick={image ? handleDeleteImage : handleFileInputClick}
+                            >
                                 {image ? <FaTrash className='text-white text-3xl cursor-pointer' />
                                     : <FaPlus className='text-white text-3xl cursor-pointer' />}
                             </div>
                         )}
-
+                        <input type='file' ref={fileInputRef} className='hidden' onChange={handleImageChange} name='profile-image' accept='.png, .jpg, .jpeg, .svg, .webp' />
                     </div>
                     <div className='flex min-w-32 md:min-w-64 flex-col gap-5 text-white items-center justify-center'>
                         <div className='w-full'>

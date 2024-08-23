@@ -12,6 +12,7 @@ const Chat = () => {
             navigate("/profile")
         }
     }, [userInfo, navigate])
+
     return (
         <div>Chat</div>
     )
