@@ -33,7 +33,7 @@ const NewDM = () => {
     const selectNewContact = (contact) => {
         setOpenNewContactModal(false);
         setSelectedChatType("contact");
-        setSelectedChatData(contact);
+        setSelectedChatData(contact); // set receiver
         setSearchContact([])
     }
 
