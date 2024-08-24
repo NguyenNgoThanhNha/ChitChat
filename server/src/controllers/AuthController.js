@@ -81,6 +81,17 @@ const SignIn = async (req, res) => {
     }
 }
 
+
+const SignOut = async (req, res) => {
+    try {
+        res.cookie("jwt", "", { maxAge: 1, secure: true, sameSite: "None" })
+        return res.status(200).json({ message: "Sign out successfully." })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Something went wrong" })
+    }
+}
+
 const GetUserInFo = async (req, res) => {
     try {
         const userData = await User.findById(req.userId)
@@ -95,7 +106,8 @@ const GetUserInFo = async (req, res) => {
                 firstName: userData.firstName,
                 lastName: userData.lastName,
                 image: userData.image,
-                profileSetup: userData.profileSetup
+                profileSetup: userData.profileSetup,
+                color: userData.color
             }
         })
     } catch (error) {
@@ -194,6 +206,7 @@ const DeleteProfileImage = async (req, res) => {
 export default {
     SignUp,
     SignIn,
+    SignOut,
     GetUserInFo,
     UpdateProfile,
     AddProfileImage,
