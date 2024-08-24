@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react'
 import { apiClient } from './lib/api.client'
 import { GET_USER_INFO_ROUTE } from './utils/constant'
 import Loading from './components/Loading'
-import { toast } from 'sonner'
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
