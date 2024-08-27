@@ -4,11 +4,14 @@ import { GET_MESSAGE_ROUTE, HOST } from '@/utils/constant';
 import { MdFolderZip } from "react-icons/md"
 import { IoMdArrowRoundDown } from "react-icons/io"
 import moment from 'moment';
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { IoCloseSharp } from 'react-icons/io5';
 
 const MessageContainer = () => {
     const scrollRef = useRef();
-    const { selectedChatData, selectedChatType, userInfo, selectedChatMessages, setselectedChatMessages } = useAppStore();
+    const { selectedChatData, selectedChatType, selectedChatMessages, setselectedChatMessages, setDownLoading, setFileDownloadProgress } = useAppStore();
+    const [showImage, setShowImage] = useState(false);
+    const [imageUrl, setImageUrl] = useState(null);
     useEffect(() => {
         const getMessages = async () => {
             try {
@@ -39,9 +42,34 @@ const MessageContainer = () => {
         }
     }, [selectedChatMessages])
 
-    const downloadFile = (file) => {
-        console.log(file)
-    }
+    const downloadFile = async (url) => {
+        try {
+            setDownLoading(true);
+            setFileDownloadProgress(0);
+            const response = await apiClient.get(`${HOST}/${url}`, {
+                responseType: "blob",
+                onDownloadProgress: (progressEvent) => {
+                    const { loaded, total } = progressEvent;
+                    const percentCompleted = Math.round((loaded * 100) / total);
+                    setFileDownloadProgress(percentCompleted)
+                }
+            });
+
+            const urlBlob = window.URL.createObjectURL(response.data);
+            const link = document.createElement("a");
+            link.href = urlBlob;
+            link.setAttribute("download", url.split("/").pop());
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            window.URL.revokeObjectURL(urlBlob);
+            setDownLoading(false);
+        } catch (error) {
+            console.error("Error downloading the file:", error);
+        }
+    };
+
 
 
 
@@ -89,7 +117,12 @@ const MessageContainer = () => {
                             "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50" :
                             "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"} border inline-block p-4 rounded my-1 max-w-[50% break-words]`}>
                             {checkIfImage(message.fileUrl) ?
-                                <div className='cursor-pointer'>
+                                <div className='cursor-pointer'
+                                    onClick={() => {
+                                        setShowImage(true);
+                                        setImageUrl(message.fileUrl)
+                                    }}
+                                >
                                     <img src={`${HOST}/${message.fileUrl}`} alt={`${HOST}/${message.fileUrl}`} height={300} width={300}></img>
                                 </div> :
                                 <div className='flex items-center justify-center gap-4'>
@@ -117,6 +150,30 @@ const MessageContainer = () => {
         <div className='flex-1 overflow-y-auto scrollbar-hidden p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full'>
             {renderMessages()}
             <div ref={scrollRef} />
+            {
+                showImage && (
+                    <div className='fixed z-[1000] top-0 left-0 h-[100vh] w-[100vw] flex items-center justify-center backdrop-blur-lg'>
+                        <div>
+                            <img src={`${HOST}/${imageUrl}`} className='h-[80vh] w-full bg-cover' />
+                        </div>
+                        <div className='flex gap-5 fixed top-0 mt-5'>
+                            <button className='bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300'
+                                onClick={() => downloadFile(imageUrl)}
+                            >
+                                <IoMdArrowRoundDown />
+                            </button>
+                            <button className='bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300'
+                                onClick={() => {
+                                    setShowImage(false),
+                                        setImageUrl(null)
+                                }}
+                            >
+                                <IoCloseSharp />
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     )
 }
