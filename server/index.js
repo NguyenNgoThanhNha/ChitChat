@@ -19,7 +19,8 @@ app.use(cors({
     credentials: true
 }))
 
-app.use("/upload/profiles", express.static("upload/profiles"))
+app.use("/upload/profiles", express.static("upload/profiles")) // profile 
+app.use("/upload/files", express.static("upload/files")) // chat
 
 app.use(cookieParser());
 app.use(express.json());

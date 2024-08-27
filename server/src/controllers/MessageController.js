@@ -1,5 +1,5 @@
 import Message from './../models/MessageModel.js';
-
+import { mkdirSync, renameSync } from 'fs'
 const GetMessages = async (req, res) => {
     try {
         const user1 = req.userId;
@@ -27,6 +27,27 @@ const GetMessages = async (req, res) => {
     }
 };
 
+const UploadFile = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "File is required." });
+        }
+        const date = Date.now();
+        const fileDir = `upload/files/${date}`;
+        const fileName = `${fileDir}/${req.file.originalname}`;
+        // Create the directory structure if it doesn't exist, using recursive to create any necessary parent directories
+        mkdirSync(fileDir, { recursive: true });
+
+        // Move the uploaded file from its temporary path to the final destination
+        renameSync(req.file.path, fileName);
+        return res.status(200).json({ filePath: fileName });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
 export default {
-    GetMessages
+    GetMessages,
+    UploadFile
 };
