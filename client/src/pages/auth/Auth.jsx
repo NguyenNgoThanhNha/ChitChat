@@ -113,26 +113,51 @@ const Auth = () => {
                         </TabsList>
                         <TabsContent className="flex flex-col gap-5 mt-8" value="sign_in">
                             <div>
-                                <Input placeholder="Email" type="email" className="rounded-full p-6" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                <Input placeholder="Email" type="email" className="rounded-full p-6" value={email} onChange={(e) => setEmail(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSignIn();
+                                        }
+                                    }} />
                                 {signInClicked && !email.length && <span className='text-red-500 ml-2'>Email is required!</span>}
                             </div>
                             <div>
-                                <Input placeholder="Password" type="password" className="rounded-full p-6" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                <Input placeholder="Password" type="password" className="rounded-full p-6" value={password} onChange={(e) => setPassword(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSignIn();
+                                        }
+                                    }} />
                                 {signInClicked && !password.length && <span className='text-red-500 ml-2'>Password is required!</span>}
                             </div>
                             <Button className="rounded-full p-6" onClick={handleSignIn}>Sign In</Button>
                         </TabsContent>
                         <TabsContent className="flex flex-col gap-5" value="sign_up">
                             <div>
-                                <Input placeholder="Email" type="email" className="rounded-full p-6" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                <Input placeholder="Email" type="email" className="rounded-full p-6" value={email} onChange={(e) => setEmail(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSignUp();
+                                        }
+                                    }} />
                                 {signUpClicked && !email.length && <span className='text-red-500 ml-2'>Email is required!</span>}
                             </div>
                             <div>
-                                <Input placeholder="Password" type="password" className="rounded-full p-6" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                <Input placeholder="Password" type="password" className="rounded-full p-6" value={password} onChange={(e) => setPassword(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSignUp();
+                                        }
+                                    }} />
                                 {signUpClicked && !password.length && <span className='text-red-500 ml-2'>Password is required!</span>}
                             </div>
                             <div>
-                                <Input placeholder="Confirm Password" type="password" className="rounded-full p-6" value={confirmPassword} onChange={(e) => setconfirmPassword(e.target.value)} />
+                                <Input placeholder="Confirm Password" type="password" className="rounded-full p-6" value={confirmPassword} onChange={(e) => setconfirmPassword(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSignUp();
+                                        }
+                                    }} />
                                 {signUpClicked && !confirmPassword.length && <span className='text-red-500 ml-2'>Confirm Password is required!</span>}
                                 {signUpClicked && confirmPassword !== password && <span className='text-red-500 ml-2'>Password and Confirm Password must be same</span>}
                             </div>

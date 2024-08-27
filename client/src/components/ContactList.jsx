@@ -19,7 +19,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
     } else {
       setSelectedChatType("contact");
     }
-    setSelectedChatData(contact);
+    setSelectedChatData(contact); // render chat
 
     // Clear messages if a different contact is selected
     if (selectedChatData && selectedChatData._id !== contact._id) {
