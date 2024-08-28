@@ -2,21 +2,30 @@ import React, { useEffect } from 'react'
 import ProfileInfo from './profile-info/ProfileInfo';
 import NewDM from './new-dm/NewDM';
 import { apiClient } from '@/lib/api.client';
-import { GET_CONTACT_FOR_DM_ROUTE } from '@/utils/constant';
+import { GET_ALL_USER_CHANNELS_ROUTE, GET_CONTACT_FOR_DM_ROUTE } from '@/utils/constant';
 import { useAppStore } from '@/store/store';
 import ContactList from '@/components/ContactList';
+import CreateChanel from './create-channel/CreateChanel';
 
 const ContactContainer = () => {
-    const { directMessagesContacts, setDirectMessagesContacts } = useAppStore();
+    const { directMessagesContacts, setDirectMessagesContacts, channels, setChannels } = useAppStore();
     useEffect(() => {
         const getContacts = async () => {
             const response = await apiClient.get(GET_CONTACT_FOR_DM_ROUTE, { withCredentials: true })
             if (response.status === 200 && response.data.contacts) {
                 setDirectMessagesContacts(response.data.contacts)
             }
+        };
+        const getChannels = async () => {
+            const response = await apiClient.get(GET_ALL_USER_CHANNELS_ROUTE, { withCredentials: true })
+            if (response.status === 200 && response.data.channels) {
+                setChannels(response.data.channels)
+            }
         }
+
         getContacts();
-    }, [])
+        getChannels();
+    }, [setDirectMessagesContacts, setChannels])
     return (
         <div className='relative md:w-[35vw] lg:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full'>
             <div className='pt-3'>
@@ -34,6 +43,10 @@ const ContactContainer = () => {
             <div className='my-5'>
                 <div className='flex items-center justify-between pr-10'>
                     <Title text="Channels" />
+                    <CreateChanel />
+                </div>
+                <div className='max-h-[38vh] overflow-y-auto scrollbar-hidden'>
+                    <ContactList contacts={channels} isChannel={true} />
                 </div>
             </div>
             <ProfileInfo />

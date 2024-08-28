@@ -41,8 +41,16 @@ const MessageBar = () => {
                 messageType: "text",
                 fileUrl: undefined
             })
-            setMessage("")
+        } else if (selectedChatType === "channel") {
+            socket.emit("sendMessageChannel", {
+                sender: userInfo.id,
+                content: message,
+                messageType: "text",
+                fileUrl: undefined,
+                channelId: selectedChatData._id
+            })
         }
+        setMessage("");
     }
 
     const handleAttachmentClick = () => {
@@ -81,6 +89,14 @@ const MessageBar = () => {
                             messageType: "file",
                             fileUrl: response.data.filePath // The file path returned from the server
                         });
+                    } else if (selectedChatType === "channel") {
+                        socket.emit("sendMessageChannel", {
+                            sender: userInfo.id,
+                            content: undefined,
+                            messageType: "file",
+                            fileUrl: response.data.filePath,
+                            channelId: selectedChatData._id
+                        })
                     }
                 } else {
                     console.error("File upload failed", response);
