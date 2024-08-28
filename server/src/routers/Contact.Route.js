@@ -5,5 +5,6 @@ const router = express.Router()
 
 router.post("/search", verifyToken, ContactController.SearchContacts)
 router.get("/get-contacts-for-dm", verifyToken, ContactController.GetContactsForDirectMessagesList)
+router.get("/get-all-contact", verifyToken, ContactController.GetAllContact)
 
 export default router;

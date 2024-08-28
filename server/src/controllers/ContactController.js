@@ -94,9 +94,27 @@ const GetContactsForDirectMessagesList = async (req, res) => {
     }
 };
 
+const GetAllContact = async (req, res) => {
+    try {
+        const users = await User.find({ _id: { $ne: req.userId } }, "firstName lastName _id") // get all User without sender request
+
+        const contacts = users.map((user) => ({
+            label: user.firstName ? `${user.firstName} ${user.lastName}` : user.email,
+            value: user._id
+        }))
+
+        // Trả về kết quả
+        return res.status(200).json({ contacts });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+};
 
 
 export default {
     SearchContacts,
-    GetContactsForDirectMessagesList
+    GetContactsForDirectMessagesList,
+    GetAllContact
 }
