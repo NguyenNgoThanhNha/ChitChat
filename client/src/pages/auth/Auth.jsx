@@ -19,25 +19,34 @@ const Auth = () => {
     const [signUpClicked, setSignUpClicked] = useState(false);
 
     const validateSignUp = () => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{6,}$/;
+
         if (!email.length) {
-            toast.error("Email is required")
-            return false
+            toast.error("Email is required");
+            return false;
         }
         if (!password.length) {
-            toast.error("Password is required")
-            return false
+            toast.error("Password is required");
+            return false;
+        }
+        if (!passwordRegex.test(password)) {
+            toast.error("Password must be at least 6 characters long, contain at least one uppercase letter, one special character, and one lowercase letter.");
+            return false;
         }
         if (!confirmPassword.length) {
-            toast.error("Confirm Password is required")
-            return false
+            toast.error("Confirm Password is required");
+            return false;
         }
         if (password !== confirmPassword) {
-            toast.error("Password and Confirm Password must be same")
+            toast.error("Password and Confirm Password must be the same");
+            return false;
         }
-        return true
+        return true;
     }
 
+
     const validateSignIn = () => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{6,}$/;
         if (!email.length) {
             toast.error("Email is required")
             return false
@@ -45,6 +54,10 @@ const Auth = () => {
         if (!password.length) {
             toast.error("Password is required")
             return false
+        }
+        if (!passwordRegex.test(password)) {
+            toast.error("Password must be at least 6 characters long, contain at least one uppercase letter, one special character, and one lowercase letter.");
+            return false;
         }
         return true
     }
