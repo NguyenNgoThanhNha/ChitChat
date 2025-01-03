@@ -58,7 +58,7 @@ function App() {
         <Route path='/auth' element={<AuthRoute><Auth /></AuthRoute>} />
         <Route path='/profile' element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path='/chat' element={<PrivateRoute><Chat /></PrivateRoute>} />
-        <Route path='*' element={<Navigate to="/auth" />} />
+        <Route path='*' element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   )
