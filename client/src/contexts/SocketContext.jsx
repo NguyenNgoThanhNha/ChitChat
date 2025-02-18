@@ -20,7 +20,7 @@ export const SocketProvider = ({ children }) => {
                 withCredentials: true,
                 query: { userId: userInfo.id } // socket.handshake.query.userId to server
             });
-            socket.current.on("connect", () => {
+            socket.current.on("connection", () => {
                 console.log("Connected to socket server")
             })
 
