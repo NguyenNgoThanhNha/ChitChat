@@ -33,4 +33,4 @@ const server = app.listen(port, () => {
 
 setupSocket(server);
 
-module.exports = { app };
+// module.exports = { app };
