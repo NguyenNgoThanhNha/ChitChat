@@ -65,3 +65,4 @@ app.use("/api", router);
 // ❌ KHÔNG dùng setupSocket
 
 export default app;
+module.exports = app;
