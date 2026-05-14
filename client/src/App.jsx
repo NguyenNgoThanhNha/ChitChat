@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import Auth from './pages/auth/Auth'
 import Profile from './pages/profile/Profile'
 import Chat from './pages/chat/Chat'
+import Blog from './pages/blog/Blog'
 import { useAppStore } from './store/store'
 import { useEffect, useState } from 'react'
 import { apiClient } from './lib/api.client'
@@ -58,7 +59,9 @@ function App() {
         <Route path='/auth' element={<AuthRoute><Auth /></AuthRoute>} />
         <Route path='/profile' element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path='/chat' element={<PrivateRoute><Chat /></PrivateRoute>} />
-        <Route path='*' element={<Navigate to="/auth" />} />
+        <Route path='/blog' element={<PrivateRoute><Blog /></PrivateRoute>} />
+        <Route path='/' element={<Navigate to="/chat" replace />} />
+        <Route path='*' element={<Navigate to="/chat" replace />} />
       </Routes>
     </BrowserRouter>
   )

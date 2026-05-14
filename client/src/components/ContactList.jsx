@@ -10,7 +10,8 @@ const ContactList = ({ contacts, isChannel = false }) => {
     selectedChatData,
     setSelectedChatType,
     setSelectedChatData,
-    setselectedChatMessages
+    setselectedChatMessages,
+    onlineUserIds
   } = useAppStore();
 
   const handleClick = (contact) => {
@@ -19,49 +20,58 @@ const ContactList = ({ contacts, isChannel = false }) => {
     } else {
       setSelectedChatType("contact");
     }
-    setSelectedChatData(contact); // render chat
+    setSelectedChatData(contact);
 
-    // Clear messages if a different contact is selected
     if (selectedChatData && selectedChatData._id !== contact._id) {
       setselectedChatMessages([]);
     }
   };
 
   return (
-    <div className='mt-5'>
-      {contacts.map((contact) => (
+    <div className='mt-2'>
+      {contacts.map((contact, idx) => (
         <div
           key={contact._id}
+          style={{ animationDelay: `${Math.min(idx, 12) * 35}ms` }}
           onClick={() => handleClick(contact)}
-          className={`pl-10 py-2 transition-all duration-300 cursor-pointer ${selectedChatData && selectedChatData._id === contact._id ?
-            "bg-[#8417ff] hover:bg-[#8417ff]"
-            :
-            "hover:bg-[#f1f1f111]"
+          className={`pl-8 py-2.5 mx-2 rounded-md cursor-pointer transition-all duration-200 ease-out
+            hover:bg-black/5 dark:hover:bg-[#f1f1f111] hover:translate-x-0.5 active:scale-[0.99]
+            animate-in fade-in slide-in-from-left-2 duration-300
+            ${selectedChatData && selectedChatData._id === contact._id
+              ? "bg-[#8417ff] hover:bg-[#8417ff] text-white shadow-sm"
+              : ""
             }`}
         >
-          <div className='flex gap-5 items-center justify-start text-neutral-300'>
+          <div className={`flex gap-4 items-center justify-start ${selectedChatData && selectedChatData._id === contact._id ? "text-white" : "text-muted-foreground dark:text-neutral-300"}`}>
             {
               !isChannel && (
-                <Avatar className='h-12 w-12 rounded-full overflow-hidden'>
-                  {
-                    contact.image ?
-                      (<AvatarImage src={`${HOST}/${contact.image}`} alt="avatar" className="object-cover w-full h-full bg-black rounded-full" />)
-                      :
-                      (
-                        <div className={`uppercase h-12 w-12 text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(contact.color)}`} >
-                          {contact.firstName ? contact.firstName.split("").shift() : contact.email?.split("").shift()}
-                        </div>
-                      )
-                  }
-                </Avatar>
+                <div className="relative shrink-0">
+                  <Avatar className='h-10 w-10 rounded-full overflow-hidden transition-transform duration-200'>
+                    {
+                      contact.image ?
+                        (<AvatarImage src={`${HOST}/${contact.image}`} alt="avatar" className="object-cover w-full h-full bg-black rounded-full" />)
+                        :
+                        (
+                          <div className={`uppercase h-10 w-10 text-sm border border-white/10 flex items-center justify-center rounded-full ${getColor(contact.color)}`} >
+                            {contact.firstName ? contact.firstName.split("").shift() : contact.email?.split("").shift()}
+                          </div>
+                        )
+                    }
+                  </Avatar>
+                  <span
+                    className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-chat-panel ${onlineUserIds?.[contact._id] ? "bg-emerald-500" : "bg-neutral-500"
+                      }`}
+                    title={onlineUserIds?.[contact._id] ? "Online" : "Offline"}
+                  />
+                </div>
               )
             }
             {
               isChannel && (
-                <div className='bg-[#ffffff22] h-10 w-10 flex items-center justify-center rounded-full'>#</div>
+                <div className='bg-[#ffffff22] h-9 w-9 flex items-center justify-center rounded-full text-foreground/90 dark:text-white/90 font-semibold shrink-0'>#</div>
               )
             }
-            {isChannel ? <span>{contact.name}</span> : <span>{contact.firstName ? `${contact.firstName}` : contact.email}</span>}
+            <span className="truncate text-sm">{isChannel ? contact.name : (contact.firstName ? `${contact.firstName}` : contact.email)}</span>
           </div>
         </div>
       ))}

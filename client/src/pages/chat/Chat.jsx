@@ -18,24 +18,36 @@ const Chat = () => {
 
     return (
         <>
-            <div className='flex h-[100vh] text-white overflow-hidden'>
+            <div className='flex h-[100vh] text-foreground bg-chat-surface overflow-hidden animate-chat-fade'>
                 {
                     isUploading && (
-                        <div className='h-[100vh] w-[100vw] fixed top-0 z-10 left-0 bg-black/80 flex items-center justify-center flex-col gap-5 backdrop-blur-lg'>
-                            <h5 className='text-5xl animate-pulse'>
+                        <div className='h-[100vh] w-[100vw] fixed top-0 z-10 left-0 bg-background/80 dark:bg-black/80 flex items-center justify-center flex-col gap-5 backdrop-blur-md animate-in fade-in duration-200'>
+                            <h5 className='text-2xl md:text-4xl font-medium animate-pulse text-foreground'>
                                 Uploading File
                             </h5>
-                            {fileUploadProgress}%
+                            <div className="w-48 h-2 rounded-full bg-muted overflow-hidden">
+                                <div
+                                    className="h-full bg-[#8417ff] transition-all duration-300 rounded-full"
+                                    style={{ width: `${fileUploadProgress}%` }}
+                                />
+                            </div>
+                            <span className="text-muted-foreground">{fileUploadProgress}%</span>
                         </div>
                     )
                 }
                 {
                     isDownLoading && (
-                        <div className='h-[100vh] w-[100vw] fixed top-0 z-10 left-0 bg-black/80 flex items-center justify-center flex-col gap-5 backdrop-blur-lg'>
-                            <h5 className='text-5xl animate-pulse'>
+                        <div className='h-[100vh] w-[100vw] fixed top-0 z-10 left-0 bg-background/80 dark:bg-black/80 flex items-center justify-center flex-col gap-5 backdrop-blur-md animate-in fade-in duration-200'>
+                            <h5 className='text-2xl md:text-4xl font-medium animate-pulse text-foreground'>
                                 Downloading File
                             </h5>
-                            {fileDownloadProgress}%
+                            <div className="w-48 h-2 rounded-full bg-muted overflow-hidden">
+                                <div
+                                    className="h-full bg-[#8417ff] transition-all duration-300 rounded-full"
+                                    style={{ width: `${fileDownloadProgress}%` }}
+                                />
+                            </div>
+                            <span className="text-muted-foreground">{fileDownloadProgress}%</span>
                         </div>
                     )
                 }

@@ -31,6 +31,6 @@ const server = app.listen(port, () => {
     console.log(`Server is running at localhost:${port}`)
 })
 
-setupSocket(server);
+setupSocket(server, app);
 
 // module.exports = { app };
