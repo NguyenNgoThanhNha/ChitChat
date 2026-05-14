@@ -44,7 +44,6 @@ const Auth = () => {
         return true;
     }
 
-
     const validateSignIn = () => {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{6,}$/;
         if (!email.length) {
@@ -106,84 +105,114 @@ const Auth = () => {
         }
     };
 
+    const inputClass =
+        "rounded-full p-6 bg-white text-black border-zinc-300 placeholder:text-zinc-500 focus-visible:ring-purple-500";
+
     return (
-        <div className='h-[100vh] w-[100vw] flex items-center justify-center'>
-            <div className='h-[80vh] w-[80vw] bg-white border-2 border-white text-opacity-90 shadow-2xl md:w-[90vw] lg:w-[70vw] xl:w-[60vw] rounded-3xl grid xl:grid-cols-2'>
-                <div className='flex flex-col gap-10 items-center justify-center'>
-                    <div className='flex items-center justify-center'>
-                        <h1 className='text-5xl font-bold md:text-6xl'>Welcome</h1>
-                        <img src={Victory} alt='Victory Emoji' className='h-[100px]' />
+        <div className="h-[100vh] w-[100vw] flex items-center justify-center bg-[#e4e4e7] [color-scheme:light]">
+            <div className="h-[80vh] w-[80vw] bg-white border-2 border-white text-black shadow-2xl md:w-[90vw] lg:w-[70vw] xl:w-[60vw] rounded-3xl grid xl:grid-cols-2">
+                <div className="flex flex-col gap-10 items-center justify-center">
+                    <div className="flex items-center justify-center">
+                        <h1 className="text-5xl font-bold md:text-6xl">Welcome</h1>
+                        <img src={Victory} alt="Victory Emoji" className="h-[100px]" />
                     </div>
-                    <p className='font-medium text-center'>
-                        Fill in the details to get started with the best app!
-                    </p>
+                    <p className="font-medium text-center">Fill in the details to get started with the best app!</p>
                 </div>
-                <div className='flex items-center justify-center w-full'>
-                    <Tabs className='w-3/4' defaultValue="sign_in">
+                <div className="flex items-center justify-center w-full">
+                    <Tabs className="w-3/4" defaultValue="sign_in">
                         <TabsList className="bg-transparent rounded-none w-full">
-                            <TabsTrigger className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300" value="sign_in">Sign In</TabsTrigger>
-                            <TabsTrigger className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300" value="sign_up">Sign Up</TabsTrigger>
+                            <TabsTrigger
+                                className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300"
+                                value="sign_in"
+                            >
+                                Sign In
+                            </TabsTrigger>
+                            <TabsTrigger
+                                className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300"
+                                value="sign_up"
+                            >
+                                Sign Up
+                            </TabsTrigger>
                         </TabsList>
                         <TabsContent className="flex flex-col gap-5 mt-8" value="sign_in">
                             <div>
-                                <Input placeholder="Email" type="email" className="rounded-full p-6" value={email} onChange={(e) => setEmail(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            handleSignIn();
-                                        }
-                                    }} />
-                                {signInClicked && !email.length && <span className='text-red-500 ml-2'>Email is required!</span>}
+                                <Input
+                                    placeholder="Email"
+                                    type="email"
+                                    className={inputClass}
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                {signInClicked && !email.length && <span className="text-red-500 ml-2">Email is required!</span>}
                             </div>
                             <div>
-                                <Input placeholder="Password" type="password" className="rounded-full p-6" value={password} onChange={(e) => setPassword(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            handleSignIn();
-                                        }
-                                    }} />
-                                {signInClicked && !password.length && <span className='text-red-500 ml-2'>Password is required!</span>}
+                                <Input
+                                    placeholder="Password"
+                                    type="password"
+                                    className={inputClass}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                {signInClicked && !password.length && <span className="text-red-500 ml-2">Password is required!</span>}
                             </div>
-                            <Button className="rounded-full p-6" onClick={handleSignIn}>Sign In</Button>
+                            <Button
+                                className="rounded-full p-6 bg-purple-600 text-white hover:bg-purple-700"
+                                onClick={handleSignIn}
+                            >
+                                Sign In
+                            </Button>
                         </TabsContent>
                         <TabsContent className="flex flex-col gap-5" value="sign_up">
                             <div>
-                                <Input placeholder="Email" type="email" className="rounded-full p-6" value={email} onChange={(e) => setEmail(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            handleSignUp();
-                                        }
-                                    }} />
-                                {signUpClicked && !email.length && <span className='text-red-500 ml-2'>Email is required!</span>}
+                                <Input
+                                    placeholder="Email"
+                                    type="email"
+                                    className={inputClass}
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                {signUpClicked && !email.length && <span className="text-red-500 ml-2">Email is required!</span>}
                             </div>
                             <div>
-                                <Input placeholder="Password" type="password" className="rounded-full p-6" value={password} onChange={(e) => setPassword(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            handleSignUp();
-                                        }
-                                    }} />
-                                {signUpClicked && !password.length && <span className='text-red-500 ml-2'>Password is required!</span>}
+                                <Input
+                                    placeholder="Password"
+                                    type="password"
+                                    className={inputClass}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                {signUpClicked && !password.length && <span className="text-red-500 ml-2">Password is required!</span>}
                             </div>
                             <div>
-                                <Input placeholder="Confirm Password" type="password" className="rounded-full p-6" value={confirmPassword} onChange={(e) => setconfirmPassword(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            handleSignUp();
-                                        }
-                                    }} />
-                                {signUpClicked && !confirmPassword.length && <span className='text-red-500 ml-2'>Confirm Password is required!</span>}
-                                {signUpClicked && confirmPassword !== password && <span className='text-red-500 ml-2'>Password and Confirm Password must be same</span>}
+                                <Input
+                                    placeholder="Confirm Password"
+                                    type="password"
+                                    className={inputClass}
+                                    value={confirmPassword}
+                                    onChange={(e) => setconfirmPassword(e.target.value)}
+                                />
+                                {signUpClicked && !confirmPassword.length && (
+                                    <span className="text-red-500 ml-2">Confirm Password is required!</span>
+                                )}
+                                {signUpClicked && confirmPassword !== password && (
+                                    <span className="text-red-500 ml-2">Password and Confirm Password must be same</span>
+                                )}
                             </div>
-                            <Button className="rounded-full p-6" onClick={handleSignUp}>Sign Up</Button>
+                            <Button
+                                className="rounded-full p-6 bg-purple-600 text-white hover:bg-purple-700"
+                                onClick={handleSignUp}
+                            >
+                                Sign Up
+                            </Button>
                         </TabsContent>
                     </Tabs>
                 </div>
             </div>
-            <div className='hidden xl:flex justify-center items-center'>
-                <img src={Background} alt='background sign in' className='h-[700px]' />
+            <div className="hidden xl:flex justify-center items-center">
+                <img src={Background} alt="background sign in" className="h-[700px]" />
             </div>
         </div>
-    )
+    );
 }
 
 export default Auth
