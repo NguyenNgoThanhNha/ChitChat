@@ -26,7 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import MultipleSelector from "@/components/multipleselect";
 import { HiUsers } from "react-icons/hi";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiArrowLeft } from "react-icons/fi";
 import { IoExitOutline, IoTrashOutline } from "react-icons/io5";
 import { MdBlock } from "react-icons/md";
 import moment from "moment";
@@ -261,11 +261,19 @@ const ChatHeader = () => {
     };
 
     return (
-        <div className="h-[10vh] min-h-[64px] border-b-2 border-chat-border bg-chat-surface flex items-center justify-between px-6 md:px-20 transition-colors duration-300">
+        <div className="shrink-0 min-h-[56px] pt-safe border-b-2 border-chat-border bg-chat-surface flex items-center justify-between px-3 sm:px-6 md:px-12 transition-colors duration-300">
             <div ref={remoteAudioContainerRef} className="hidden" aria-hidden />
-            <div className="flex gap-4 items-center w-full justify-between min-w-0">
-                <div className="flex gap-3 items-center justify-center min-w-0">
-                    <div className='w-11 h-11 relative shrink-0 transition-transform duration-200 hover:scale-105'>
+            <div className="flex gap-2 sm:gap-4 items-center w-full justify-between min-w-0">
+                <div className="flex gap-2 sm:gap-3 items-center min-w-0 flex-1">
+                    <button
+                        type="button"
+                        className="md:hidden shrink-0 rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        onClick={closeChat}
+                        aria-label="Quay lại"
+                    >
+                        <FiArrowLeft className="text-xl" />
+                    </button>
+                    <div className='w-10 h-10 sm:w-11 sm:h-11 relative shrink-0 transition-transform duration-200 hover:scale-105'>
                         {selectedChatType === "contact" ?
                             <Avatar className='h-11 w-11 rounded-full overflow-hidden'>
                                 {
@@ -385,8 +393,9 @@ const ChatHeader = () => {
                     {error && <span className="text-xs text-red-500 max-w-[100px] hidden sm:inline">{error}</span>}
                     <button
                         type="button"
-                        className="rounded-lg p-2 text-muted-foreground hover:text-foreground transition-all duration-200"
+                        className="hidden md:flex rounded-lg p-2 text-muted-foreground hover:text-foreground transition-all duration-200"
                         onClick={closeChat}
+                        aria-label="Đóng chat"
                     >
                         <RiCloseFill className="text-2xl" />
                     </button>

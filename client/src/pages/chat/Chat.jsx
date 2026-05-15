@@ -18,7 +18,7 @@ const Chat = () => {
 
     return (
         <>
-            <div className='flex h-[100vh] text-foreground bg-chat-surface overflow-hidden animate-chat-fade'>
+            <div className='flex h-[100dvh] text-foreground bg-chat-surface overflow-hidden animate-chat-fade'>
                 {
                     isUploading && (
                         <div className='h-[100vh] w-[100vw] fixed top-0 z-10 left-0 bg-background/80 dark:bg-black/80 flex items-center justify-center flex-col gap-5 backdrop-blur-md animate-in fade-in duration-200'>

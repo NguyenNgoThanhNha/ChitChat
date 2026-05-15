@@ -42,7 +42,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
               : ""
             }`}
         >
-          <div className={`flex gap-4 items-center justify-start ${selectedChatData && selectedChatData._id === contact._id ? "text-white" : "text-muted-foreground dark:text-neutral-300"}`}>
+          <div className={`flex gap-4 items-center justify-start ${selectedChatData && selectedChatData._id === contact._id ? "text-white" : "text-foreground/85 dark:text-neutral-300"}`}>
             {
               !isChannel && (
                 <div className="relative shrink-0">
@@ -68,7 +68,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
             }
             {
               isChannel && (
-                <div className='bg-[#ffffff22] h-9 w-9 flex items-center justify-center rounded-full text-foreground/90 dark:text-white/90 font-semibold shrink-0'>#</div>
+                <div className='bg-muted dark:bg-white/10 h-9 w-9 flex items-center justify-center rounded-full text-foreground font-semibold shrink-0'>#</div>
               )
             }
             <span className="truncate text-sm">{isChannel ? contact.name : (contact.firstName ? `${contact.firstName}` : contact.email)}</span>

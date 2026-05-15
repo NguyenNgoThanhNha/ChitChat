@@ -11,6 +11,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { FiArrowLeft, FiTrash2 } from "react-icons/fi";
+import { ThemeToggleButton } from "@/components/ThemeToggleButton";
+import { AnimatedPage, AnimatedPageHeader, AnimatedPageMain, staggerStyle } from "@/components/layout/AnimatedPage";
 
 const formatPrice = (n) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
@@ -137,40 +139,41 @@ const ShopCart = () => {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-[#0f0f13] text-white">
-            <header className="border-b border-[#2f303b] px-4 py-3 flex items-center gap-3">
-                <button type="button" onClick={() => navigate("/shop")} className="p-2 rounded-lg hover:bg-white/5">
+        <AnimatedPage>
+            <AnimatedPageHeader className="border-b border-border px-4 py-3 flex items-center gap-3">
+                <button type="button" onClick={() => navigate("/shop")} className="p-2 rounded-lg hover:bg-accent">
                     <FiArrowLeft className="text-xl" />
                 </button>
-                <h1 className="text-xl font-semibold">Cart</h1>
-            </header>
+                <h1 className="text-xl font-semibold flex-1">Cart</h1>
+                <ThemeToggleButton />
+            </AnimatedPageHeader>
 
-            <main className="max-w-lg mx-auto p-4 pb-10">
+            <AnimatedPageMain className="max-w-lg mx-auto p-4 pb-10">
                 {loading ? (
-                    <p className="text-white/50 text-center py-12">Loading…</p>
+                    <p className="text-muted-foreground text-center py-12">Loading…</p>
                 ) : !cart.items?.length ? (
                     <div className="text-center py-12">
-                        <p className="text-white/50 mb-4">Your cart is empty</p>
-                        <button type="button" onClick={() => navigate("/shop")} className="text-[#c4b5fd] hover:underline">
+                        <p className="text-muted-foreground mb-4">Your cart is empty</p>
+                        <button type="button" onClick={() => navigate("/shop")} className="text-violet-700 dark:text-violet-300 hover:underline">
                             Browse shop
                         </button>
                     </div>
                 ) : (
                     <>
                         <ul className="space-y-3 mb-6">
-                            {cart.items.map((row) => {
+                            {cart.items.map((row, idx) => {
                                 const p = row.product;
                                 if (!p) return null;
                                 return (
-                                    <li key={p._id} className="flex gap-3 p-3 rounded-xl bg-[#1a1b23] border border-[#2f303b]">
+                                    <li key={p._id} style={staggerStyle(idx)} className="page-stagger-item flex gap-3 p-3 rounded-xl bg-card border border-border">
                                         {p.image ? (
                                             <img src={`${HOST}/${p.image}`} alt="" className="h-16 w-16 rounded object-cover" />
                                         ) : (
-                                            <div className="h-16 w-16 rounded bg-[#0f0f13]" />
+                                            <div className="h-16 w-16 rounded bg-background" />
                                         )}
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium truncate">{p.title}</p>
-                                            <p className="text-sm text-[#c4b5fd]">{formatPrice(p.price)}</p>
+                                            <p className="text-sm text-violet-700 dark:text-violet-300">{formatPrice(p.price)}</p>
                                             <div className="flex items-center gap-2 mt-2">
                                                 <input
                                                     type="number"
@@ -181,7 +184,7 @@ const ShopCart = () => {
                                                         const q = parseInt(e.target.value, 10) || 1;
                                                         updateQty(p._id, q);
                                                     }}
-                                                    className="w-16 px-2 py-1 text-sm rounded bg-[#0f0f13] border border-[#2f303b]"
+                                                    className="w-16 px-2 py-1 text-sm rounded bg-background border border-border"
                                                 />
                                                 <button type="button" onClick={() => remove(p._id)} className="p-1 text-red-400">
                                                     <FiTrash2 />
@@ -194,9 +197,9 @@ const ShopCart = () => {
                             })}
                         </ul>
 
-                        <div className="rounded-xl border border-[#2f303b] bg-[#1a1b23] p-4 mb-4 space-y-2 text-sm">
+                        <div className="rounded-xl border border-border bg-card p-4 mb-4 space-y-2 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-white/60">Subtotal</span>
+                                <span className="text-muted-foreground">Subtotal</span>
                                 <span>{formatPrice(subtotal)}</span>
                             </div>
                             {discount > 0 && (
@@ -205,15 +208,15 @@ const ShopCart = () => {
                                     <span>-{formatPrice(discount)}</span>
                                 </div>
                             )}
-                            <div className="flex justify-between text-lg font-semibold pt-2 border-t border-[#2f303b]">
+                            <div className="flex justify-between text-lg font-semibold pt-2 border-t border-border">
                                 <span>Total</span>
-                                <span className="text-[#c4b5fd]">{formatPrice(total)}</span>
+                                <span className="text-violet-700 dark:text-violet-300">{formatPrice(total)}</span>
                             </div>
                         </div>
 
-                        <form onSubmit={checkout} className="space-y-3 rounded-xl border border-[#2f303b] bg-[#1a1b23] p-4">
-                            <p className="text-sm font-medium text-white/80">Payment method</p>
-                            <label className="flex items-center gap-3 p-3 rounded-lg border border-[#2f303b] cursor-pointer has-[:checked]:border-[#8417ff]">
+                        <form onSubmit={checkout} className="space-y-3 rounded-xl border border-border bg-card p-4">
+                            <p className="text-sm font-medium text-foreground/80">Payment method</p>
+                            <label className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer has-[:checked]:border-[#8417ff]">
                                 <input
                                     type="radio"
                                     name="pay"
@@ -223,11 +226,11 @@ const ShopCart = () => {
                                 />
                                 <div>
                                     <p className="font-medium">Cash on delivery (COD)</p>
-                                    <p className="text-xs text-white/50">Pay when you receive the goods</p>
+                                    <p className="text-xs text-muted-foreground">Pay when you receive the goods</p>
                                 </div>
                             </label>
                             <label
-                                className={`flex items-center gap-3 p-3 rounded-lg border border-[#2f303b] cursor-pointer has-[:checked]:border-[#8417ff] ${!vnpayEnabled ? "opacity-50 pointer-events-none" : ""}`}
+                                className={`flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer has-[:checked]:border-[#8417ff] ${!vnpayEnabled ? "opacity-50 pointer-events-none" : ""}`}
                             >
                                 <input
                                     type="radio"
@@ -239,25 +242,25 @@ const ShopCart = () => {
                                 />
                                 <div>
                                     <p className="font-medium">VNPay (online)</p>
-                                    <p className="text-xs text-white/50">
+                                    <p className="text-xs text-muted-foreground">
                                         {vnpayEnabled ? "ATM, QR, domestic & international cards" : "Not configured on server"}
                                     </p>
                                 </div>
                             </label>
 
-                            <p className="text-sm font-medium text-white/80 pt-2">Coupon</p>
+                            <p className="text-sm font-medium text-foreground/80 pt-2">Coupon</p>
                             <div className="flex gap-2">
                                 <input
                                     value={couponCode}
                                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                                     placeholder="e.g. WELCOME10"
-                                    className="flex-1 px-3 py-2 rounded-lg bg-[#0f0f13] border border-[#2f303b] uppercase"
+                                    className="flex-1 px-3 py-2 rounded-lg bg-background border border-border uppercase"
                                 />
                                 <button
                                     type="button"
                                     onClick={applyCoupon}
                                     disabled={validatingCoupon}
-                                    className="px-4 py-2 rounded-lg border border-[#8417ff]/50 text-[#c4b5fd] shrink-0"
+                                    className="px-4 py-2 rounded-lg border border-[#8417ff]/50 text-violet-700 dark:text-violet-300 shrink-0"
                                 >
                                     Apply
                                 </button>
@@ -268,21 +271,21 @@ const ShopCart = () => {
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
                                 placeholder="Shipping address"
-                                className="w-full px-3 py-2 rounded-lg bg-[#0f0f13] border border-[#2f303b]"
+                                className="w-full px-3 py-2 rounded-lg bg-background border border-border"
                             />
                             <input
                                 required
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                                 placeholder="Phone number"
-                                className="w-full px-3 py-2 rounded-lg bg-[#0f0f13] border border-[#2f303b]"
+                                className="w-full px-3 py-2 rounded-lg bg-background border border-border"
                             />
                             <textarea
                                 value={note}
                                 onChange={(e) => setNote(e.target.value)}
                                 placeholder="Note (optional)"
                                 rows={2}
-                                className="w-full px-3 py-2 rounded-lg bg-[#0f0f13] border border-[#2f303b]"
+                                className="w-full px-3 py-2 rounded-lg bg-background border border-border"
                             />
                             <button
                                 type="submit"
@@ -298,8 +301,8 @@ const ShopCart = () => {
                         </form>
                     </>
                 )}
-            </main>
-        </div>
+            </AnimatedPageMain>
+        </AnimatedPage>
     );
 };
 

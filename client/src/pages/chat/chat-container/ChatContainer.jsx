@@ -26,7 +26,7 @@ const ChatContainer = () => {
     }, [selectedChatData?._id, selectedChatType, setTypingPeers]);
 
     return (
-        <div className='fixed top-0 h-[100vh] w-[100vw] bg-chat-surface flex flex-col md:static md:flex-1 md:animate-chat-panel-in border-l border-chat-border transition-colors duration-300'>
+        <div className='fixed inset-0 z-30 flex flex-col h-[100dvh] w-full bg-chat-surface md:static md:z-auto md:flex-1 md:animate-chat-panel-in md:border-l border-chat-border transition-colors duration-300'>
             <ChatHeader />
             <MessageContainer />
             <MessageBar />

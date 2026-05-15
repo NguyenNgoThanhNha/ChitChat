@@ -113,7 +113,7 @@ const NewDM = ({ onContactsUpdated }) => {
             );
         }
         if (rel === "pending_sent") {
-            return <span className="text-[10px] text-white/50 shrink-0">Pending</span>;
+            return <span className="text-[10px] text-muted-foreground shrink-0">Pending</span>;
         }
         if (rel === "pending_received") {
             return (
@@ -148,21 +148,21 @@ const NewDM = ({ onContactsUpdated }) => {
                             onClick={() => setOpenNewContactModal(true)}
                         />
                     </TooltipTrigger>
-                    <TooltipContent className='bg-[#1c1b1e] border-none mb-2 p-3 text-white'>
+                    <TooltipContent className='mb-2 p-3'>
                         Find friends &amp; message
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
             <Dialog open={openNewContactModal} onOpenChange={setOpenNewContactModal}>
-                <DialogContent className='bg-[#181920] border-none text-white w-[400px] max-h-[85vh] flex flex-col rounded-md'>
+                <DialogContent className='w-[400px] max-h-[85vh] flex flex-col'>
                     <DialogHeader className='flex items-center'>
                         <DialogTitle>Find friends</DialogTitle>
-                        <DialogDescription className="text-white/50 text-xs">
+                        <DialogDescription className="text-xs">
                             Send a friend request, then start a DM when accepted.
                         </DialogDescription>
                     </DialogHeader>
                     <div>
-                        <Input placeholder="Search by name or email" className='rounded-lg p-6 bg-[#2c2e3b] border-none' onChange={(e) => searchContact(e.target.value)} />
+                        <Input placeholder="Search by name or email" className='rounded-lg p-6' onChange={(e) => searchContact(e.target.value)} />
                     </div>
                     {
                         searchedContact.length > 0 && (
@@ -171,7 +171,7 @@ const NewDM = ({ onContactsUpdated }) => {
                                     {searchedContact.map((contact) => (
                                         <div
                                             key={contact._id}
-                                            className={`flex gap-3 items-center p-2 rounded-lg ${contact.relation === "friends" ? "cursor-pointer hover:bg-white/5" : ""}`}
+                                            className={`flex gap-3 items-center p-2 rounded-lg ${contact.relation === "friends" ? "cursor-pointer hover:bg-accent" : ""}`}
                                             onClick={() => selectNewContact(contact)}
                                         >
                                             <div className='w-10 h-10 relative shrink-0'>
@@ -192,7 +192,7 @@ const NewDM = ({ onContactsUpdated }) => {
                                                 <span className="truncate text-sm">
                                                     {contact.firstName && contact.lastName ? `${contact.firstName} ${contact.lastName}` : contact.email}
                                                 </span>
-                                                <span className='text-xs text-white/50'>{relationLabel[contact.relation] || contact.relation}</span>
+                                                <span className='text-xs text-muted-foreground'>{relationLabel[contact.relation] || contact.relation}</span>
                                             </div>
                                             {renderAction(contact)}
                                         </div>
@@ -205,7 +205,7 @@ const NewDM = ({ onContactsUpdated }) => {
                         searchedContact.length <= 0 && (
                             <div className='flex-1 md:flex flex-col mt-4 justify-center items-center'>
                                 <Lottie isClickToPauseDisabled={true} height={100} width={100} options={animationDefaultOptions} />
-                                <p className='text-sm text-white/60 mt-4 text-center px-4'>
+                                <p className='text-sm text-muted-foreground mt-4 text-center px-4'>
                                     Search users to send a friend request
                                 </p>
                             </div>

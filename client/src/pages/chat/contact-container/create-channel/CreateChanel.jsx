@@ -54,23 +54,23 @@ const CreateChanel = () => {
                             onClick={() => setOpenNewChannelModal(true)}
                         />
                     </TooltipTrigger>
-                    <TooltipContent className='bg-[#1c1b1e] border-none mb-2 p-3 text-white'>
+                    <TooltipContent className='mb-2 p-3'>
                         Create New Channel
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
             <Dialog open={newChannelModal} onOpenChange={setOpenNewChannelModal}>
-                <DialogContent className='bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col rounded-md'>
+                <DialogContent className='w-[400px] h-[400px] flex flex-col'>
                     <DialogHeader className='flex items-center'>
                         <DialogTitle>Please fill up the details for new Channel</DialogTitle>
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
                     <div>
-                        <Input placeholder="Channel Name" className='rounded-lg p-6 bg-[#2c2e3b] border-none' onChange={(e) => setChannelName(e.target.value)}
+                        <Input placeholder="Channel Name" className='rounded-lg p-6' onChange={(e) => setChannelName(e.target.value)}
                             value={chanelName} />
                     </div>
                     <div>
-                        <MultipleSelector className='rounded-lg bg-[#2c2e3b] border-none py-2 text-white'
+                        <MultipleSelector className='rounded-lg bg-muted border-none py-2'
                             defaultOptions={allContacts}
                             placeholder="Search Contacts"
                             value={selectedContacts}

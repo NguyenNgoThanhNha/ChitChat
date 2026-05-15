@@ -15,8 +15,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 import { isMessageSoundEnabled, setMessageSoundEnabled } from '@/lib/messageSound';
+import SocialToolbar from '../social-toolbar/SocialToolbar';
 
-const ProfileInfo = () => {
+const ProfileInfo = ({ onContactsUpdated }) => {
     const { userInfo, setUserInfo } = useAppStore();
     const navigate = useNavigate();
     const { setTheme, resolvedTheme } = useTheme();
@@ -52,42 +53,43 @@ const ProfileInfo = () => {
         }
     }
     return (
-        <div className="absolute bottom-0 h-16 flex items-center justify-between px-4 sm:px-6 w-full border-t-2 border-chat-border bg-chat-elevated">
-            <div className="flex gap-3 items-center justify-center min-w-0">
-                <div className="w-12 h-12 relative shrink-0">
-                    <Avatar className="h-12 w-12 rounded-full overflow-hidden">
+        <div className="absolute bottom-0 min-h-16 py-2 pb-safe flex items-center gap-1 sm:gap-2 px-2 sm:px-4 w-full border-t-2 border-chat-border bg-chat-elevated z-10">
+            <div className="flex gap-2 items-center shrink-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 relative shrink-0">
+                    <Avatar className="h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden">
                         {
                             userInfo.image ?
                                 (<AvatarImage src={`${HOST}/${userInfo.image}`} alt="avatar" className="object-cover w-full h-full bg-black" />)
                                 :
                                 (
-                                    <div className={`uppercase h-12 w-12 text-lg border border-neutral-300 dark:border-white/10 flex items-center justify-center rounded-full ${getColor(userInfo?.color)}`} >
+                                    <div className={`uppercase h-10 w-10 sm:h-12 sm:w-12 text-base sm:text-lg border border-neutral-300 dark:border-white/10 flex items-center justify-center rounded-full ${getColor(userInfo?.color)}`} >
                                         {userInfo.firstName ? userInfo.firstName.split("").shift() : userInfo.email?.split("").shift()}
                                     </div>
                                 )
                         }
                     </Avatar>
                 </div>
-                <div className="truncate text-sm text-neutral-800 dark:text-white">
+                <div className="truncate text-sm text-foreground hidden sm:block max-w-[72px] lg:max-w-[120px]">
                     {
                         userInfo.firstName && userInfo.lastName ? `${userInfo.firstName} ${userInfo.lastName}` : (userInfo.email || "")
                     }
                 </div>
             </div>
-            <div className="flex gap-1 sm:gap-2 shrink-0 items-center">
+            <div className="flex gap-0.5 sm:gap-1 flex-1 min-w-0 items-center overflow-x-auto scrollbar-hidden [&_button]:shrink-0">
+                <SocialToolbar onContactsUpdated={onContactsUpdated} />
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <button
                                 type="button"
-                                className="rounded-md p-2 text-neutral-600 dark:text-neutral-400 hover:text-[#8417ff] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                className="shrink-0 rounded-md p-1.5 sm:p-2 text-neutral-600 dark:text-neutral-400 hover:text-[#8417ff] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                 onClick={() => navigate("/shop")}
                                 aria-label="Shop"
                             >
                                 <HiOutlineShoppingBag className="text-xl" />
                             </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-[#1c1b1e] border border-[#2f303b] text-white">
+                        <TooltipContent>
                             Shop
                         </TooltipContent>
                     </Tooltip>
@@ -102,7 +104,7 @@ const ProfileInfo = () => {
                                 <FiBookOpen className="text-xl" />
                             </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-[#1c1b1e] border border-[#2f303b] text-white">
+                        <TooltipContent>
                             Blog
                         </TooltipContent>
                     </Tooltip>
@@ -119,7 +121,7 @@ const ProfileInfo = () => {
                                 {soundOn ? <HiOutlineSpeakerWave className="text-xl" /> : <HiOutlineSpeakerXMark className="text-xl" />}
                             </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-[#1c1b1e] border border-[#2f303b] text-white">
+                        <TooltipContent>
                             {soundOn ? "Mute new message sound" : "Unmute message sound"}
                         </TooltipContent>
                     </Tooltip>
@@ -140,7 +142,7 @@ const ProfileInfo = () => {
                                 )}
                             </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-[#1c1b1e] border border-[#2f303b] text-white">
+                        <TooltipContent>
                             Light / Dark
                         </TooltipContent>
                     </Tooltip>
@@ -152,7 +154,7 @@ const ProfileInfo = () => {
                                 <FiEdit2 className="text-xl" />
                             </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-[#1c1b1e] border border-[#2f303b] text-white">
+                        <TooltipContent>
                             Edit Profile
                         </TooltipContent>
                     </Tooltip>
@@ -164,7 +166,7 @@ const ProfileInfo = () => {
                                 <IoPowerSharp className="text-xl" />
                             </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-[#1c1b1e] border border-[#2f303b] text-white">
+                        <TooltipContent>
                             Sign Out
                         </TooltipContent>
                     </Tooltip>

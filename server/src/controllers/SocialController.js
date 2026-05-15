@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import User from "../models/UserModel.js";
 import FriendRequest from "../models/FriendRequestModel.js";
 import Block from "../models/BlockModel.js";
+import Message from "../models/MessageModel.js";
 import {
     areFriends,
     getBlockedUserIds,
@@ -11,6 +12,29 @@ import {
 } from "../utils/socialGraph.js";
 
 const userSelect = "firstName lastName email image color _id";
+
+const restoreFriendship = async (userId, otherId) => {
+    const existing = await FriendRequest.findOne({
+        status: "accepted",
+        $or: [
+            { from: userId, to: otherId },
+            { from: otherId, to: userId }
+        ]
+    });
+    if (existing) return true;
+    await FriendRequest.create({ from: userId, to: otherId, status: "accepted" });
+    return true;
+};
+
+const hadDmHistory = async (userId, otherId) => {
+    const row = await Message.exists({
+        $or: [
+            { sender: userId, recipient: otherId },
+            { sender: otherId, recipient: userId }
+        ]
+    });
+    return !!row;
+};
 
 const SendFriendRequest = async (req, res) => {
     try {
@@ -195,20 +219,24 @@ const BlockUser = async (req, res) => {
         const target = await User.findById(userId);
         if (!target) return res.status(404).json({ message: "User not found" });
 
+        const friends = await areFriends(req.userId, userId);
+
         await Block.findOneAndUpdate(
             { user: req.userId, blocked: userId },
-            {},
+            { wasFriends: friends },
             { upsert: true, new: true }
         );
 
+        // Only cancel pending requests — keep accepted friendship for restore on unblock
         await FriendRequest.deleteMany({
+            status: "pending",
             $or: [
                 { from: req.userId, to: userId },
                 { from: userId, to: req.userId }
             ]
         });
 
-        return res.status(200).json({ ok: true });
+        return res.status(200).json({ ok: true, wasFriends: friends });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Something went wrong" });
@@ -218,8 +246,28 @@ const BlockUser = async (req, res) => {
 const UnblockUser = async (req, res) => {
     try {
         const { userId } = req.params;
-        await Block.deleteOne({ user: req.userId, blocked: userId });
-        return res.status(200).json({ ok: true });
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: "Valid userId required" });
+        }
+        const row = await Block.findOne({ user: req.userId, blocked: userId });
+        if (!row) {
+            return res.status(404).json({ message: "User is not in your block list" });
+        }
+
+        const shouldRestore =
+            !!row.wasFriends || (await hadDmHistory(req.userId, userId));
+        await Block.deleteOne({ _id: row._id });
+
+        let restoredFriendship = false;
+        if (shouldRestore) {
+            restoredFriendship = await restoreFriendship(req.userId, userId);
+        }
+
+        return res.status(200).json({
+            ok: true,
+            message: "User unblocked",
+            restoredFriendship
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Something went wrong" });

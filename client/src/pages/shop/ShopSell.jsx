@@ -10,6 +10,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { FiArrowLeft, FiTrash2 } from "react-icons/fi";
+import { ThemeToggleButton } from "@/components/ThemeToggleButton";
+import { AnimatedPage, AnimatedPageHeader, AnimatedPageMain, staggerStyle } from "@/components/layout/AnimatedPage";
 
 const formatPrice = (n) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
@@ -98,29 +100,30 @@ const ShopSell = () => {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-[#0f0f13] text-white">
-            <header className="border-b border-[#2f303b] px-4 py-3 flex items-center gap-3">
-                <button type="button" onClick={() => navigate("/shop")} className="p-2 rounded-lg hover:bg-white/5">
+        <AnimatedPage>
+            <AnimatedPageHeader className="border-b border-border px-4 py-3 flex items-center gap-3">
+                <button type="button" onClick={() => navigate("/shop")} className="p-2 rounded-lg hover:bg-accent">
                     <FiArrowLeft className="text-xl" />
                 </button>
-                <h1 className="text-xl font-semibold">Sell a product</h1>
-            </header>
+                <h1 className="text-xl font-semibold flex-1">Sell a product</h1>
+                <ThemeToggleButton />
+            </AnimatedPageHeader>
 
-            <main className="max-w-lg mx-auto p-4 space-y-8">
-                <form onSubmit={submit} className="space-y-4 rounded-xl border border-[#2f303b] bg-[#1a1b23] p-5">
+            <AnimatedPageMain className="max-w-lg mx-auto p-4 space-y-8">
+                <form onSubmit={submit} className="space-y-4 rounded-xl border border-border bg-card p-5">
                     <input
                         required
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Product title"
-                        className="w-full px-3 py-2 rounded-lg bg-[#0f0f13] border border-[#2f303b]"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-border"
                     />
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Description"
                         rows={4}
-                        className="w-full px-3 py-2 rounded-lg bg-[#0f0f13] border border-[#2f303b]"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-border"
                     />
                     <div className="grid grid-cols-2 gap-3">
                         <input
@@ -130,7 +133,7 @@ const ShopSell = () => {
                             value={price}
                             onChange={(e) => setPrice(e.target.value)}
                             placeholder="Price (VND)"
-                            className="px-3 py-2 rounded-lg bg-[#0f0f13] border border-[#2f303b]"
+                            className="px-3 py-2 rounded-lg bg-background border border-border"
                         />
                         <input
                             required
@@ -139,7 +142,7 @@ const ShopSell = () => {
                             value={stock}
                             onChange={(e) => setStock(e.target.value)}
                             placeholder="Stock"
-                            className="px-3 py-2 rounded-lg bg-[#0f0f13] border border-[#2f303b]"
+                            className="px-3 py-2 rounded-lg bg-background border border-border"
                         />
                     </div>
                     <div>
@@ -158,21 +161,21 @@ const ShopSell = () => {
                 </form>
 
                 <section>
-                    <h2 className="font-medium mb-3 text-white/80">Your listings</h2>
+                    <h2 className="font-medium mb-3 text-foreground/80">Your listings</h2>
                     {mine.length === 0 ? (
-                        <p className="text-sm text-white/50">No products yet</p>
+                        <p className="text-sm text-muted-foreground">No products yet</p>
                     ) : (
                         <ul className="space-y-2">
-                            {mine.map((p) => (
-                                <li key={p._id} className="flex items-center gap-3 p-3 rounded-lg bg-[#1a1b23] border border-[#2f303b]">
+                            {mine.map((p, idx) => (
+                                <li key={p._id} style={staggerStyle(idx)} className="page-stagger-item flex items-center gap-3 p-3 rounded-lg bg-card border border-border">
                                     {p.image ? (
                                         <img src={`${HOST}/${p.image}`} alt="" className="h-12 w-12 rounded object-cover" />
                                     ) : (
-                                        <div className="h-12 w-12 rounded bg-[#0f0f13]" />
+                                        <div className="h-12 w-12 rounded bg-background" />
                                     )}
                                     <div className="flex-1 min-w-0">
                                         <p className="font-medium truncate">{p.title}</p>
-                                        <p className="text-sm text-[#c4b5fd]">{formatPrice(p.price)} · Stock {p.stock}</p>
+                                        <p className="text-sm text-violet-700 dark:text-violet-300">{formatPrice(p.price)} · Stock {p.stock}</p>
                                     </div>
                                     <button type="button" onClick={() => remove(p._id)} className="p-2 text-red-400 hover:bg-red-400/10 rounded">
                                         <FiTrash2 />
@@ -182,8 +185,8 @@ const ShopSell = () => {
                         </ul>
                     )}
                 </section>
-            </main>
-        </div>
+            </AnimatedPageMain>
+        </AnimatedPage>
     );
 };
 

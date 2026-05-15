@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { apiClient } from '@/lib/api.client';
 import { ADD_PROFILE_IMAGE_ROUTE, DELETE_PROFILE_IMAGE_ROUTE, HOST, UPDATE_PROFILE_ROUTE } from '@/utils/constant';
 import { useNavigate } from 'react-router-dom';
+import { AnimatedPage } from '@/components/layout/AnimatedPage';
 const Profile = () => {
     const { userInfo, setUserInfo } = useAppStore();
     const [firstName, setFirstName] = useState("");
@@ -123,10 +124,10 @@ const Profile = () => {
     }
 
     return (
-        <div className='bg-[#1b1c24] h-[100vh] flex items-center justify-center flex-col gap-10'>
-            <div className='flex flex-col gap-10 w-[80vw] md:w-max'>
+        <AnimatedPage className="h-[100vh] flex items-center justify-center flex-col gap-10">
+            <div className='page-content-in flex flex-col gap-10 w-[80vw] md:w-max'>
                 <div onClick={handleNavigate}>
-                    <IoArrowBack className='text-4xl lg:text-6xl text-white/90 cursor-pointer' />
+                    <IoArrowBack className='text-4xl lg:text-6xl text-foreground/90 cursor-pointer' />
                 </div>
                 <div className='grid grid-cols-2'>
                     <div className='h-full w-32 md:w-48 md:h-48 relative flex items-center justify-center'
@@ -154,23 +155,23 @@ const Profile = () => {
                         )}
                         <input type='file' ref={fileInputRef} className='hidden' onChange={handleImageChange} name='profile-image' accept='.png, .jpg, .jpeg, .svg, .webp' />
                     </div>
-                    <div className='flex min-w-32 md:min-w-64 flex-col gap-5 text-white items-center justify-center'>
+                    <div className='flex min-w-32 md:min-w-64 flex-col gap-5 items-center justify-center'>
                         <div className='w-full'>
-                            <Input placeholder="Email" type="email" disabled value={userInfo.email} className="rounded-lg p-6 bg-[#2c2e3b] border-none" />
+                            <Input placeholder="Email" type="email" disabled value={userInfo.email} className="rounded-lg p-6" />
                         </div>
                         <div className='w-full'>
-                            <Input onChange={(e) => setFirstName(e.target.value)} placeholder="First Name" type="text" value={firstName} className="rounded-lg p-6 bg-[#2c2e3b] border-none" />
+                            <Input onChange={(e) => setFirstName(e.target.value)} placeholder="First Name" type="text" value={firstName} className="rounded-lg p-6" />
                             {updateProfileClicked && !firstName.length && <span className='text-red-500 ml-2'>First Name is required!</span>}
                         </div>
                         <div className='w-full'>
-                            <Input onChange={(e) => setLastName(e.target.value)} placeholder="Last Name" type="text" value={lastName} className="rounded-lg p-6 bg-[#2c2e3b] border-none" />
+                            <Input onChange={(e) => setLastName(e.target.value)} placeholder="Last Name" type="text" value={lastName} className="rounded-lg p-6" />
                             {updateProfileClicked && !lastName.length && <span className='text-red-500 ml-2'>Last Name is required!</span>}
                         </div>
                         <div className='w-full flex gap-5'>
                             {
                                 colors.map((color, index) => (
                                     <div key={index} className={`${color} h-8 w-8 rounded-full cursor-pointer transition-all duration-300 
-                                    ${selectedColor === index ? "outline outline-white/50 outline-2" : ""
+                                    ${selectedColor === index ? "outline outline-foreground/50 outline-2" : ""
                                         }
                                     `}
                                         onClick={() => setSelectedColor(index)}
@@ -185,8 +186,8 @@ const Profile = () => {
                         Save Change
                     </Button>
                 </div>
-            </div >
-        </div >
+            </div>
+        </AnimatedPage>
     )
 }
 

@@ -437,7 +437,7 @@ const MessageContainer = () => {
                     message.messageType === "text" && (
                         <div className={`${isMine ?
                             "bg-violet-50 border-violet-300 text-violet-950 dark:bg-[#8417ff]/5 dark:text-[#8417ff]/90 dark:border-[#8417ff]/50" :
-                            "bg-neutral-100 border-neutral-200 text-neutral-900 dark:bg-[#2a2b33]/5 dark:text-white/80 dark:border-white/20"} border inline-block p-4 rounded-lg my-1 max-w-[50%] break-words shadow-sm chat-message-enter`}>
+                            "bg-neutral-100 border-neutral-200 text-neutral-900 dark:bg-[#2a2b33]/5 dark:text-white/80 dark:border-white/20"} border inline-block p-4 rounded-lg my-1 max-w-[85%] sm:max-w-[50%] break-words shadow-sm chat-message-enter`}>
                             {message.isDeleted ? <span className="italic opacity-60">Message deleted</span> : message.content}
                             {message.editedAt && !message.isDeleted && <span className="text-[10px] opacity-50"> (edited)</span>}
                         </div>
@@ -447,7 +447,7 @@ const MessageContainer = () => {
                     message.messageType === "file" && !message.isDeleted && (
                         <div className={`${isMine ?
                             "bg-violet-50 border-violet-300 text-violet-950 dark:bg-[#8417ff]/5 dark:text-[#8417ff]/90 dark:border-[#8417ff]/50" :
-                            "bg-neutral-100 border-neutral-200 text-neutral-900 dark:bg-[#2a2b33]/5 dark:text-white/80 dark:border-white/20"} border inline-block p-4 rounded-lg my-1 max-w-[50%] break-words shadow-sm chat-message-enter`}>
+                            "bg-neutral-100 border-neutral-200 text-neutral-900 dark:bg-[#2a2b33]/5 dark:text-white/80 dark:border-white/20"} border inline-block p-4 rounded-lg my-1 max-w-[85%] sm:max-w-[50%] break-words shadow-sm chat-message-enter`}>
                             {checkIfImage(message.fileUrl) ?
                                 <div className='cursor-pointer'
                                     onClick={() => {
@@ -495,7 +495,7 @@ const MessageContainer = () => {
                     message.messageType === "text" && (
                         <div className={`${isMine ?
                             "bg-violet-50 border-violet-300 text-violet-950 dark:bg-[#8417ff]/5 dark:text-[#8417ff]/90 dark:border-[#8417ff]/50" :
-                            "bg-neutral-100 border-neutral-200 text-neutral-900 dark:bg-[#2a2b33]/5 dark:text-white/80 dark:border-white/20"} border inline-block p-4 rounded-lg my-1 max-w-[50%] break-words ml-9 shadow-sm chat-message-enter`}>
+                            "bg-neutral-100 border-neutral-200 text-neutral-900 dark:bg-[#2a2b33]/5 dark:text-white/80 dark:border-white/20"} border inline-block p-4 rounded-lg my-1 max-w-[85%] sm:max-w-[50%] break-words ml-9 shadow-sm chat-message-enter`}>
                             {message.isDeleted ? <span className="italic opacity-60">Message deleted</span> : message.content}
                             {message.editedAt && !message.isDeleted && <span className="text-[10px] opacity-50"> (edited)</span>}
                         </div>
@@ -505,7 +505,7 @@ const MessageContainer = () => {
                     message.messageType === "file" && !message.isDeleted && (
                         <div className={`${isMine ?
                             "bg-violet-50 border-violet-300 text-violet-950 dark:bg-[#8417ff]/5 dark:text-[#8417ff]/90 dark:border-[#8417ff]/50" :
-                            "bg-neutral-100 border-neutral-200 text-neutral-900 dark:bg-[#2a2b33]/5 dark:text-white/80 dark:border-white/20"} border inline-block p-4 rounded-lg my-1 max-w-[50%] break-words shadow-sm chat-message-enter`}>
+                            "bg-neutral-100 border-neutral-200 text-neutral-900 dark:bg-[#2a2b33]/5 dark:text-white/80 dark:border-white/20"} border inline-block p-4 rounded-lg my-1 max-w-[85%] sm:max-w-[50%] break-words shadow-sm chat-message-enter`}>
                             {checkIfImage(message.fileUrl) ?
                                 <div className='cursor-pointer'
                                     onClick={() => {
@@ -613,7 +613,7 @@ const MessageContainer = () => {
             <div
                 ref={listRef}
                 onScroll={handleListScroll}
-                className="flex-1 overflow-y-auto scrollbar-hidden p-4 px-6 md:px-10 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full bg-chat-surface text-foreground transition-colors duration-300"
+                className="flex-1 overflow-y-auto scrollbar-hidden p-3 px-3 sm:p-4 sm:px-6 md:px-10 w-full bg-chat-surface text-foreground transition-colors duration-300"
             >
                 {loadingOlderMessages && (
                     <div className="text-center text-xs text-muted-foreground py-2">Loading older messages…</div>

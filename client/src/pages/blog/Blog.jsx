@@ -20,6 +20,8 @@ import { useConfirmUi } from "@/store/confirm-ui";
 import { FaRegCommentDots, FaRegHeart, FaHeart } from "react-icons/fa";
 import { FiShare2, FiArrowLeft, FiSend, FiPaperclip, FiX } from "react-icons/fi";
 import { IoTrashOutline } from "react-icons/io5";
+import { ThemeToggleButton } from "@/components/ThemeToggleButton";
+import { AnimatedPage, AnimatedPageHeader, AnimatedPageMain, staggerStyle } from "@/components/layout/AnimatedPage";
 
 const extOf = (path) => {
     const n = String(path).split(/[/\\]/).pop() || "";
@@ -46,14 +48,14 @@ const PostMedia = ({ post }) => {
             {imgs.length > 0 && (
                 <div className="grid gap-2">
                     {imgs.map((img) => (
-                        <img key={img} src={`${HOST}/${img}`} alt="" className="rounded-lg max-h-72 w-full object-cover border border-[#2f303b]" />
+                        <img key={img} src={`${HOST}/${img}`} alt="" className="rounded-lg max-h-72 w-full object-cover border border-border" />
                     ))}
                 </div>
             )}
             {vids.length > 0 && (
                 <div className="grid gap-2">
                     {vids.map((v) => (
-                        <video key={v} controls className="rounded-lg max-h-80 w-full border border-[#2f303b] bg-black" src={`${HOST}/${v}`} />
+                        <video key={v} controls className="rounded-lg max-h-80 w-full border border-border bg-black" src={`${HOST}/${v}`} />
                     ))}
                 </div>
             )}
@@ -263,13 +265,13 @@ const Blog = () => {
             <div className="space-y-2">
                 {rows.map(([key, label]) =>
                     pendingMedia[key].length ? (
-                        <div key={key} className="text-xs text-neutral-400">
-                            <span className="text-neutral-500">{label}: </span>
+                        <div key={key} className="text-xs text-muted-foreground">
+                            <span className="text-muted-foreground">{label}: </span>
                             <div className="flex flex-wrap gap-1.5 mt-1">
                                 {pendingMedia[key].map((path, i) => (
                                     <span
                                         key={`${path}-${i}`}
-                                        className="inline-flex items-center gap-1 pl-2 pr-1 py-1 rounded-md bg-[#2a2b33] border border-[#2f303b] text-neutral-200 max-w-full"
+                                        className="inline-flex items-center gap-1 pl-2 pr-1 py-1 rounded-md bg-muted border border-border text-foreground max-w-full"
                                     >
                                         <span className="truncate max-w-[200px]">{path.split("/").pop()}</span>
                                         <button type="button" className="p-0.5 rounded hover:bg-white/10" onClick={() => removePending(key, i)} aria-label="Remove">
@@ -286,29 +288,33 @@ const Blog = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#14151c] text-white">
-            <header className="sticky top-0 z-20 border-b border-[#2f303b] bg-[#12131a]/95 backdrop-blur-md">
+        <AnimatedPage className="min-h-screen">
+            <AnimatedPageHeader className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-md">
                 <div className="max-w-xl mx-auto flex items-center justify-between px-4 py-3">
-                    <button type="button" onClick={() => navigate("/chat")} className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors">
+                    <button type="button" onClick={() => navigate("/chat")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
                         <FiArrowLeft /> Chat
                     </button>
                     <h1 className="text-lg font-semibold">Blog</h1>
-                    <button type="button" onClick={() => setCreateOpen(true)} className="text-sm font-medium bg-[#8417ff] hover:bg-[#741bda] px-3 py-1.5 rounded-md transition-colors">
-                        New post
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <ThemeToggleButton />
+                        <button type="button" onClick={() => setCreateOpen(true)} className="text-sm font-medium bg-[#8417ff] hover:bg-[#741bda] text-white px-3 py-1.5 rounded-md transition-colors">
+                            New post
+                        </button>
+                    </div>
                 </div>
-            </header>
+            </AnimatedPageHeader>
 
-            <main className="max-w-xl mx-auto px-4 py-6 space-y-4 pb-24">
-                {loading && <p className="text-center text-neutral-500 py-10">Loading…</p>}
+            <AnimatedPageMain className="max-w-xl mx-auto px-4 py-6 space-y-4 pb-24">
+                {loading && <p className="text-center text-muted-foreground py-10">Loading…</p>}
                 {!loading && posts.length === 0 && (
-                    <p className="text-center text-neutral-500 py-10">No posts yet. Be the first to share!</p>
+                    <p className="text-center text-muted-foreground py-10">No posts yet. Be the first to share!</p>
                 )}
-                {posts.map((post) => (
+                {posts.map((post, idx) => (
                     <article
                         key={post._id}
                         id={`post-${post._id}`}
-                        className={`rounded-xl border border-[#2f303b] bg-[#16171f] p-4 shadow-sm transition-shadow ${focusId === post._id ? "ring-1 ring-[#8417ff]/50" : ""}`}
+                        style={staggerStyle(idx)}
+                        className={`page-stagger-item rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow ${focusId === post._id ? "ring-1 ring-violet-500/50" : ""}`}
                     >
                         <div className="flex gap-3">
                             <Avatar className="h-10 w-10 shrink-0">
@@ -323,41 +329,41 @@ const Blog = () => {
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-start justify-between gap-2">
                                     <div>
-                                        <span className="font-medium text-white">
+                                        <span className="font-medium text-foreground">
                                             {post.author?.firstName || post.author?.email || "User"}
                                         </span>
-                                        <span className="text-neutral-500 text-sm ml-2">{moment(post.createdAt).fromNow()}</span>
+                                        <span className="text-muted-foreground text-sm ml-2">{moment(post.createdAt).fromNow()}</span>
                                     </div>
                                     {userInfo?.id && String(post.author?._id) === String(userInfo.id) && (
-                                        <button type="button" className="text-neutral-500 hover:text-red-400 p-1" onClick={() => deletePost(post)} aria-label="Delete">
+                                        <button type="button" className="text-muted-foreground hover:text-red-400 p-1" onClick={() => deletePost(post)} aria-label="Delete">
                                             <IoTrashOutline />
                                         </button>
                                     )}
                                 </div>
                                 {(post.content || "").trim() ? (
-                                    <p className="mt-2 text-[15px] leading-relaxed text-neutral-100 whitespace-pre-wrap break-words">{post.content}</p>
+                                    <p className="mt-2 text-[15px] leading-relaxed text-foreground whitespace-pre-wrap break-words">{post.content}</p>
                                 ) : null}
                                 <PostMedia post={post} />
-                                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral-400 border-t border-[#2f303b] pt-3">
+                                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-t border-border pt-3">
                                     <button type="button" className="flex items-center gap-1.5 hover:text-[#8417ff] transition-colors" onClick={() => toggleLike(post)}>
                                         {post.likedByMe ? <FaHeart className="text-[#8417ff]" /> : <FaRegHeart />}
                                         <span>{post.likesCount ?? post.likes?.length ?? 0}</span>
                                     </button>
-                                    <button type="button" className="flex items-center gap-1.5 hover:text-white transition-colors" onClick={() => toggleComments(post._id)}>
+                                    <button type="button" className="flex items-center gap-1.5 hover:text-foreground transition-colors" onClick={() => toggleComments(post._id)}>
                                         <FaRegCommentDots />
                                         <span>{post.commentsCount ?? 0}</span>
                                     </button>
-                                    <button type="button" className="flex items-center gap-1.5 hover:text-white transition-colors" onClick={() => sharePost(post)}>
+                                    <button type="button" className="flex items-center gap-1.5 hover:text-foreground transition-colors" onClick={() => sharePost(post)}>
                                         <FiShare2 />
                                         <span>Share{post.sharesCount ? ` · ${post.sharesCount}` : ""}</span>
                                     </button>
                                 </div>
                                 {expanded[post._id] && (
-                                    <div className="mt-3 space-y-3 border-t border-[#2f303b] pt-3">
+                                    <div className="mt-3 space-y-3 border-t border-border pt-3">
                                         {(commentsByPost[post._id] || []).map((c) => (
                                             <div key={c._id} className="flex gap-2 text-sm">
-                                                <span className="font-medium text-neutral-300 shrink-0">{c.author?.firstName || c.author?.email}:</span>
-                                                <span className="text-neutral-400">{c.content}</span>
+                                                <span className="font-medium text-foreground shrink-0">{c.author?.firstName || c.author?.email}:</span>
+                                                <span className="text-foreground/80">{c.content}</span>
                                             </div>
                                         ))}
                                         <CommentBox onSubmit={(t) => sendComment(post._id, t)} />
@@ -367,15 +373,15 @@ const Blog = () => {
                         </div>
                     </article>
                 ))}
-            </main>
+            </AnimatedPageMain>
 
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogContent className="bg-[#181920] border border-[#2f303b] text-white max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>New post</DialogTitle>
                     </DialogHeader>
                     <textarea
-                        className="w-full min-h-[120px] bg-[#2a2b33] border border-[#2f303b] rounded-lg p-3 text-white focus:outline-none focus:ring-1 focus:ring-[#8417ff]/50"
+                        className="w-full min-h-[120px] bg-muted border border-border rounded-lg p-3 text-foreground focus:outline-none focus:ring-1 focus:ring-violet-500/50"
                         placeholder="Nội dung (có thể để trống nếu chỉ gửi ảnh / video / file)…"
                         value={newContent}
                         onChange={(e) => setNewContent(e.target.value)}
@@ -385,7 +391,7 @@ const Blog = () => {
                         <button
                             type="button"
                             disabled={uploading}
-                            className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-lg border border-[#2f303b] bg-[#2a2b33] hover:bg-[#33354a] text-neutral-200 disabled:opacity-50"
+                            className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-lg border border-border bg-muted hover:bg-accent text-foreground disabled:opacity-50"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <FiPaperclip /> {uploading ? "Đang tải lên…" : "Đính kèm ảnh, video, file"}
@@ -397,7 +403,7 @@ const Blog = () => {
                     </button>
                 </DialogContent>
             </Dialog>
-        </div>
+        </AnimatedPage>
     );
 };
 
@@ -406,7 +412,7 @@ function CommentBox({ onSubmit }) {
     return (
         <div className="flex gap-2">
             <input
-                className="flex-1 bg-[#2a2b33] border border-[#2f303b] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#8417ff]/40"
+                className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-violet-500/40"
                 placeholder="Write a comment…"
                 value={v}
                 onChange={(e) => setV(e.target.value)}
