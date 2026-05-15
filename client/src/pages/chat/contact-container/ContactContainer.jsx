@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
-import ProfileInfo from './profile-info/ProfileInfo';
+import { SidebarAppNav } from '@/components/layout/SidebarAppNav';
+import { UserMenu } from '@/components/layout/UserMenu';
 import NewDM from './new-dm/NewDM';
 import { apiClient } from '@/lib/api.client';
 import { GET_ALL_USER_CHANNELS_ROUTE, GET_CONTACT_FOR_DM_ROUTE } from '@/utils/constant';
@@ -78,14 +79,15 @@ const ContactContainer = () => {
     return (
         <div
             className={cn(
-                'relative flex flex-col w-full h-[100dvh] md:h-full md:w-[35vw] lg:w-[20vw] bg-chat-panel border-r-2 border-chat-border transition-colors duration-300',
+                'relative flex flex-col w-full h-[100dvh] md:h-full md:w-[min(35vw,320px)] lg:w-[min(22vw,300px)] xl:w-[min(20vw,320px)] bg-chat-panel border-r-2 border-chat-border transition-colors duration-300',
                 chatOpen && 'hidden md:flex'
             )}
         >
-            <div className="pt-safe shrink-0 animate-in slide-in-from-left-2 duration-300">
+            <div className="pt-safe shrink-0 page-header-in">
                 <Logo />
             </div>
-            <div className="flex flex-col flex-1 min-h-0 overflow-hidden pb-[72px] md:pb-[68px]">
+            <SidebarAppNav onContactsUpdated={refreshDmContacts} />
+            <div className="flex flex-col flex-1 min-h-0 overflow-hidden pb-[52px]">
                 <section className="flex flex-col min-h-0 flex-1 border-b border-chat-border/60">
                     <div className="flex items-center justify-between pr-4 pl-2 py-2 shrink-0">
                         <Title text="Direct Message" />
@@ -105,7 +107,7 @@ const ContactContainer = () => {
                     </div>
                 </section>
             </div>
-            <ProfileInfo onContactsUpdated={refreshDmContacts} />
+            <UserMenu />
         </div>
     )
 }

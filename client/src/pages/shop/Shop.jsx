@@ -83,7 +83,7 @@ const Shop = () => {
     };
 
     return (
-        <AnimatedPage>
+        <AnimatedPage mesh>
             <AnimatedPageHeader className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
                 <div className="flex items-center gap-3">
                     <button type="button" onClick={() => navigate("/chat")} className="p-2 rounded-lg hover:bg-accent" aria-label="Back">

@@ -34,9 +34,8 @@ const ContactList = ({ contacts, isChannel = false }) => {
           key={contact._id}
           style={{ animationDelay: `${Math.min(idx, 12) * 35}ms` }}
           onClick={() => handleClick(contact)}
-          className={`pl-8 py-2.5 mx-2 rounded-md cursor-pointer transition-all duration-200 ease-out
+            className={`page-stagger-item pl-8 py-2.5 mx-2 rounded-md cursor-pointer transition-all duration-200 ease-out
             hover:bg-black/5 dark:hover:bg-[#f1f1f111] hover:translate-x-0.5 active:scale-[0.99]
-            animate-in fade-in slide-in-from-left-2 duration-300
             ${selectedChatData && selectedChatData._id === contact._id
               ? "bg-[#8417ff] hover:bg-[#8417ff] text-white shadow-sm"
               : ""

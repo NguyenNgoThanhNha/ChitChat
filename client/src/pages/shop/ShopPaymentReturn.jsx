@@ -28,7 +28,7 @@ const ShopPaymentReturn = () => {
     }, [orderId]);
 
     return (
-        <AnimatedPage className="flex flex-col items-center justify-center p-6">
+        <AnimatedPage mesh className="flex flex-col items-center justify-center p-6">
             {success ? (
                 <FiCheckCircle className="page-header-in text-6xl text-emerald-500 dark:text-emerald-400 mb-4" />
             ) : (

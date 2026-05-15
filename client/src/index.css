@@ -103,6 +103,30 @@
   .scrollbar-hidden::-webkit-scrollbar {
     display: none;
   }
+
+  /* Thin horizontal scrollbar for toolbars */
+  .toolbar-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(267 84% 58% / 0.55) hsl(var(--muted) / 0.5);
+    padding-bottom: 2px;
+  }
+  .toolbar-scroll::-webkit-scrollbar {
+    height: 5px;
+  }
+  .toolbar-scroll::-webkit-scrollbar-track {
+    background: hsl(var(--muted) / 0.4);
+    border-radius: 9999px;
+    margin: 0 2px;
+  }
+  .toolbar-scroll::-webkit-scrollbar-thumb {
+    background: hsl(267 84% 58% / 0.55);
+    border-radius: 9999px;
+  }
+  .toolbar-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(267 84% 58% / 0.85);
+  }
   .chat-message-enter {
     animation: chat-msg-in 0.28s ease-out both;
   }
@@ -331,5 +355,31 @@
   @keyframes auth-pulse-ring {
     0% { transform: scale(0.95); opacity: 0.6; }
     70%, 100% { transform: scale(1.15); opacity: 0; }
+  }
+
+  /* App pages — subtle mesh (lighter than auth) */
+  .app-page-bg {
+    background:
+      radial-gradient(ellipse 70% 50% at 0% 0%, hsl(267 84% 58% / 0.12), transparent 55%),
+      radial-gradient(ellipse 60% 45% at 100% 100%, hsl(280 70% 50% / 0.1), transparent 50%),
+      hsl(var(--background));
+    background-size: 150% 150%;
+    animation: auth-mesh-shift 16s ease-in-out infinite alternate;
+  }
+
+  .app-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(70px);
+    pointer-events: none;
+    animation: auth-orb-float 10s ease-in-out infinite;
+  }
+
+  .animate-chat-fade {
+    animation: page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-chat-panel-in {
+    animation: auth-panel-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 }

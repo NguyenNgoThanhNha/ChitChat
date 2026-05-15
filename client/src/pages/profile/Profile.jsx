@@ -124,10 +124,10 @@ const Profile = () => {
     }
 
     return (
-        <AnimatedPage className="h-[100vh] flex items-center justify-center flex-col gap-10">
-            <div className='page-content-in flex flex-col gap-10 w-[80vw] md:w-max'>
-                <div onClick={handleNavigate}>
-                    <IoArrowBack className='text-4xl lg:text-6xl text-foreground/90 cursor-pointer' />
+        <AnimatedPage mesh className="min-h-[100dvh] flex items-center justify-center flex-col gap-10 p-4">
+            <div className='page-content-in auth-card-glow flex flex-col gap-10 w-full max-w-2xl p-6 sm:p-8 rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm'>
+                <div onClick={handleNavigate} className="auth-field-in cursor-pointer hover:opacity-80 transition-opacity">
+                    <IoArrowBack className='text-4xl lg:text-6xl text-foreground/90' />
                 </div>
                 <div className='grid grid-cols-2'>
                     <div className='h-full w-32 md:w-48 md:h-48 relative flex items-center justify-center'

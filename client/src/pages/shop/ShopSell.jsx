@@ -100,7 +100,7 @@ const ShopSell = () => {
     };
 
     return (
-        <AnimatedPage>
+        <AnimatedPage mesh>
             <AnimatedPageHeader className="border-b border-border px-4 py-3 flex items-center gap-3">
                 <button type="button" onClick={() => navigate("/shop")} className="p-2 rounded-lg hover:bg-accent">
                     <FiArrowLeft className="text-xl" />

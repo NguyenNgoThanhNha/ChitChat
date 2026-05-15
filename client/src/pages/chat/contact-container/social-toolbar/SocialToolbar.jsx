@@ -2,7 +2,8 @@ import { apiClient } from "@/lib/api.client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getColor } from "@/lib/utils";
+import { getColor, cn } from "@/lib/utils";
+import { staggerStyle } from "@/components/layout/AnimatedPage";
 import {
     BLOCKED_USERS_ROUTE,
     FRIEND_REQUEST_ITEM_ROUTE,
@@ -20,6 +21,9 @@ const displayName = (u) =>
 
 const iconBtnClass =
     "relative rounded-md p-2 text-muted-foreground hover:text-[#8417ff] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors";
+
+const gridBtnClass =
+    "page-stagger-item relative flex flex-col items-center justify-center gap-0.5 rounded-xl p-2 min-h-[52px] text-muted-foreground hover:text-[#8417ff] dark:hover:text-white hover:bg-[#8417ff]/10 border border-transparent hover:border-[#8417ff]/20 transition-all duration-300 active:scale-95";
 
 const FriendRequestsDialog = ({ open, onOpenChange, onUpdated }) => {
     const [incoming, setIncoming] = useState([]);
@@ -59,7 +63,7 @@ const FriendRequestsDialog = ({ open, onOpenChange, onUpdated }) => {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md max-h-[85vh] overflow-hidden flex flex-col">
+            <DialogContent className="page-modal-in sm:max-w-md max-h-[85vh] overflow-hidden flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <HiOutlineUserGroup className="text-[#8417ff]" />
@@ -75,7 +79,7 @@ const FriendRequestsDialog = ({ open, onOpenChange, onUpdated }) => {
                             return (
                                 <li
                                     key={req._id}
-                                    className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/50"
+                                    className="page-stagger-item flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/50"
                                 >
                                     <Avatar className="h-10 w-10 shrink-0">
                                         {from?.image ? (
@@ -156,7 +160,7 @@ const BlockedUsersDialog = ({ open, onOpenChange, onUpdated }) => {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md max-h-[85vh] overflow-hidden flex flex-col">
+            <DialogContent className="page-modal-in sm:max-w-md max-h-[85vh] overflow-hidden flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <MdBlock className="text-red-500" />
@@ -170,7 +174,7 @@ const BlockedUsersDialog = ({ open, onOpenChange, onUpdated }) => {
                         blocked.map((user) => (
                             <li
                                 key={user._id}
-                                className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/50"
+                                className="page-stagger-item flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/50"
                             >
                                 <Avatar className="h-10 w-10 shrink-0">
                                     {user?.image ? (
@@ -201,11 +205,13 @@ const BlockedUsersDialog = ({ open, onOpenChange, onUpdated }) => {
     );
 };
 
-const SocialToolbar = ({ onContactsUpdated }) => {
+const SocialToolbar = ({ onContactsUpdated, variant = "inline" }) => {
     const [friendsOpen, setFriendsOpen] = useState(false);
     const [blockedOpen, setBlockedOpen] = useState(false);
     const [requestCount, setRequestCount] = useState(0);
     const [blockedCount, setBlockedCount] = useState(0);
+    const isGrid = variant === "grid";
+    const btnClass = isGrid ? gridBtnClass : iconBtnClass;
 
     const refreshCounts = useCallback(async () => {
         try {
@@ -231,54 +237,55 @@ const SocialToolbar = ({ onContactsUpdated }) => {
         onContactsUpdated?.();
     };
 
+    const buttons = (
+        <TooltipProvider delayDuration={300}>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <button
+                        type="button"
+                        className={btnClass}
+                        style={isGrid ? staggerStyle(0) : undefined}
+                        onClick={() => setFriendsOpen(true)}
+                        aria-label="Lời mời kết bạn"
+                    >
+                        <HiOutlineUserGroup className={cn(isGrid ? "text-xl" : "text-xl")} />
+                        {isGrid && <span className="text-[9px] font-medium leading-none">Friends</span>}
+                        {requestCount > 0 && (
+                            <span className="absolute top-1 right-1 min-w-[14px] h-3.5 px-0.5 flex items-center justify-center rounded-full bg-[#8417ff] text-white text-[9px] font-medium">
+                                {requestCount > 9 ? "9+" : requestCount}
+                            </span>
+                        )}
+                    </button>
+                </TooltipTrigger>
+                <TooltipContent side={isGrid ? "right" : "top"}>Lời mời kết bạn</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <button
+                        type="button"
+                        className={btnClass}
+                        style={isGrid ? staggerStyle(1) : undefined}
+                        onClick={() => setBlockedOpen(true)}
+                        aria-label="Danh sách chặn"
+                    >
+                        <MdBlock className="text-xl" />
+                        {isGrid && <span className="text-[9px] font-medium leading-none">Blocked</span>}
+                        {blockedCount > 0 && (
+                            <span className="absolute top-1 right-1 min-w-[14px] h-3.5 px-0.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-medium">
+                                {blockedCount > 9 ? "9+" : blockedCount}
+                            </span>
+                        )}
+                    </button>
+                </TooltipTrigger>
+                <TooltipContent side={isGrid ? "right" : "top"}>Đã chặn</TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    );
+
     return (
         <>
-            <div className="flex shrink-0 items-center gap-0.5">
-            <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                            type="button"
-                            className={iconBtnClass}
-                            onClick={() => setFriendsOpen(true)}
-                            aria-label="Lời mời kết bạn"
-                        >
-                            <HiOutlineUserGroup className="text-xl" />
-                            {requestCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-[#8417ff] text-white text-[10px] font-medium">
-                                    {requestCount > 9 ? "9+" : requestCount}
-                                </span>
-                            )}
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Lời mời kết bạn</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                            type="button"
-                            className={iconBtnClass}
-                            onClick={() => setBlockedOpen(true)}
-                            aria-label="Danh sách chặn"
-                        >
-                            <MdBlock className="text-xl" />
-                            {blockedCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-medium">
-                                    {blockedCount > 9 ? "9+" : blockedCount}
-                                </span>
-                            )}
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Đã chặn</TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-            </div>
-
-            <FriendRequestsDialog
-                open={friendsOpen}
-                onOpenChange={setFriendsOpen}
-                onUpdated={handleUpdated}
-            />
+            {isGrid ? buttons : <div className="flex shrink-0 items-center gap-0.5">{buttons}</div>}
+            <FriendRequestsDialog open={friendsOpen} onOpenChange={setFriendsOpen} onUpdated={handleUpdated} />
             <BlockedUsersDialog open={blockedOpen} onOpenChange={setBlockedOpen} onUpdated={handleUpdated} />
         </>
     );
