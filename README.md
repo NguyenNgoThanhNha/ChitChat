@@ -8,6 +8,17 @@
 
 Check out the live demo: [MERN_Discord Demo](https://mern-discord-front-end.onrender.com)
 
+### SPA routing on Render (fix 404 when refreshing)
+
+React Router needs every path to serve `index.html`. **Pick one:**
+
+1. **Static Site (recommended)** — [Render Dashboard](https://dashboard.render.com) → your frontend service → **Redirects / Rewrites** → add:
+   - Source: `/*` → Destination: `/index.html` → Action: **Rewrite**
+
+   Or link this repo’s [`render.yaml`](./render.yaml) via **Blueprint** / **Infrastructure as Code** (same rewrite is defined there).
+
+2. **Web Service (alternative)** — Root directory `client`, build `npm install && npm run build`, start `npm start` (uses `serve -s` for SPA fallback).
+
 ## Features
 
 - **User Authentication**: Secure user registration and login functionality ensures a personalized experience.

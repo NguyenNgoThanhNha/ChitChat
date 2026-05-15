@@ -1,0 +1,13 @@
+# Render Blueprint — frontend SPA (React Router)
+# Rewrite mọi route về index.html để F5 / mở thẳng URL không bị 404.
+services:
+  - type: web
+    name: mern-discord-front-end
+    runtime: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
