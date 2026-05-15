@@ -1,6 +1,7 @@
 import { Server as SocketIoServer } from "socket.io"
 import Message from "./models/MessageModel.js";
 import Channel from "./models/ChannelModel.js";
+import { canSendDm } from "./utils/socialGraph.js";
 
 const setupSocket = (server, app) => {
     const io = new SocketIoServer(server, {
@@ -32,7 +33,17 @@ const setupSocket = (server, app) => {
 
     const sendMessage = async (message) => {
         const senderSocketId = userSocketMap.get(message.sender);
-        const recipientSocketId = userSocketMap.get(message.recipient)
+        const recipientSocketId = userSocketMap.get(message.recipient);
+
+        const allowed = await canSendDm(message.sender, message.recipient);
+        if (!allowed) {
+            if (senderSocketId) {
+                io.to(senderSocketId).emit("dmError", {
+                    message: "You can only message friends. Send a friend request first."
+                });
+            }
+            return;
+        }
 
         const doc = {
             sender: message.sender,

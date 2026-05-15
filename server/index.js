@@ -14,6 +14,8 @@ mongoose.connect(process.env.DATABASE_URL).then(() => {
 const app = express();
 const port = process.env.PORT || 3001;
 
+app.set("trust proxy", 1);
+
 app.use(cors({
     origin: [process.env.ORIGIN],
     credentials: true
@@ -21,6 +23,7 @@ app.use(cors({
 
 app.use("/upload/profiles", express.static("upload/profiles")) // profile 
 app.use("/upload/files", express.static("upload/files")) // chat
+app.use("/upload/products", express.static("upload/products")) // shop
 
 app.use(cookieParser());
 app.use(express.json());

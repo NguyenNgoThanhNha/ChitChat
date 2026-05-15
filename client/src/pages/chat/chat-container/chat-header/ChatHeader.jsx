@@ -15,7 +15,10 @@ import {
     GET_ALL_CONTACT_ROUTE,
     SEARCH_MESSAGES_ROUTE,
     CHANNEL_LEAVE_ROUTE,
-    CHANNEL_DELETE_ROUTE
+    CHANNEL_DELETE_ROUTE,
+    BLOCK_USER_ROUTE,
+    REMOVE_FRIEND_ROUTE,
+    GET_CONTACT_FOR_DM_ROUTE
 } from "@/utils/constant";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -25,6 +28,7 @@ import MultipleSelector from "@/components/multipleselect";
 import { HiUsers } from "react-icons/hi";
 import { FiSearch } from "react-icons/fi";
 import { IoExitOutline, IoTrashOutline } from "react-icons/io5";
+import { MdBlock } from "react-icons/md";
 import moment from "moment";
 import { searchMessagesInList } from "@/lib/foldSearch";
 import { useConfirmUi } from "@/store/confirm-ui";
@@ -212,6 +216,50 @@ const ChatHeader = () => {
 
     const canSearch = selectedChatType === "channel" || selectedChatType === "contact";
 
+    const blockContact = async () => {
+        if (selectedChatType !== "contact" || !selectedChatData?._id) return;
+        const ok = await useConfirmUi.getState().show({
+            title: "Block user?",
+            description: "They won't be able to message you and will be removed from your friends.",
+            destructive: true,
+            confirmLabel: "Block"
+        });
+        if (!ok) return;
+        try {
+            await apiClient.post(BLOCK_USER_ROUTE, { userId: selectedChatData._id }, { withCredentials: true });
+            closeChat();
+            const cRes = await apiClient.get(GET_CONTACT_FOR_DM_ROUTE, { withCredentials: true });
+            if (cRes.data?.contacts) {
+                useAppStore.getState().setDirectMessagesContacts(cRes.data.contacts);
+            }
+            toast.success("User blocked");
+        } catch (e) {
+            toast.error(e.response?.data?.message || "Could not block");
+        }
+    };
+
+    const unfriendContact = async () => {
+        if (selectedChatType !== "contact" || !selectedChatData?._id) return;
+        const ok = await useConfirmUi.getState().show({
+            title: "Remove friend?",
+            description: "You will no longer be able to DM each other until you send a new friend request.",
+            destructive: true,
+            confirmLabel: "Remove"
+        });
+        if (!ok) return;
+        try {
+            await apiClient.delete(REMOVE_FRIEND_ROUTE(selectedChatData._id), { withCredentials: true });
+            closeChat();
+            const cRes = await apiClient.get(GET_CONTACT_FOR_DM_ROUTE, { withCredentials: true });
+            if (cRes.data?.contacts) {
+                useAppStore.getState().setDirectMessagesContacts(cRes.data.contacts);
+            }
+            toast.success("Friend removed");
+        } catch (e) {
+            toast.error(e.response?.data?.message || "Could not remove friend");
+        }
+    };
+
     return (
         <div className="h-[10vh] min-h-[64px] border-b-2 border-chat-border bg-chat-surface flex items-center justify-between px-6 md:px-20 transition-colors duration-300">
             <div ref={remoteAudioContainerRef} className="hidden" aria-hidden />
@@ -302,6 +350,26 @@ const ChatHeader = () => {
                                     <IoTrashOutline className="text-xl" />
                                 </button>
                             )}
+                        </>
+                    )}
+                    {selectedChatType === "contact" && (
+                        <>
+                            <button
+                                type="button"
+                                title="Remove friend"
+                                className="rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                                onClick={unfriendContact}
+                            >
+                                <HiUsers className="text-xl opacity-60" />
+                            </button>
+                            <button
+                                type="button"
+                                title="Block user"
+                                className="rounded-lg p-2 text-red-600 dark:text-red-500 hover:bg-red-500/10 transition-colors"
+                                onClick={blockContact}
+                            >
+                                <MdBlock className="text-xl" />
+                            </button>
                         </>
                     )}
                     {canSearch && (

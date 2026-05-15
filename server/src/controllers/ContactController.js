@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "../models/UserModel.js";
 import Message from "../models/MessageModel.js";
+import { attachRelations, getBlockedUserIds, getFriendIds } from "../utils/socialGraph.js";
 
 const SearchContacts = async (req, res) => {
     try {
@@ -14,16 +15,19 @@ const SearchContacts = async (req, res) => {
         const sanitizedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const regex = new RegExp(sanitizedSearchTerm, "i");
 
-        const contacts = await User.find({
-            _id: { $ne: req.userId },
+        const blocked = await getBlockedUserIds(req.userId);
+        const blockedArr = [...blocked].map((id) => new mongoose.Types.ObjectId(id));
+
+        const users = await User.find({
+            _id: { $ne: req.userId, $nin: blockedArr },
             $or: [
                 { firstName: regex },
                 { lastName: regex },
                 { email: regex },
             ],
-        });
+        }).limit(30);
 
-        // Trả về kết quả
+        const contacts = await attachRelations(req.userId, users);
         return res.status(200).json({ contacts });
 
     } catch (error) {
@@ -86,7 +90,42 @@ const GetContactsForDirectMessagesList = async (req, res) => {
             }
         ]);
 
-        return res.status(200).json({ contacts });
+        const friendIds = await getFriendIds(req.userId);
+        const blocked = await getBlockedUserIds(req.userId);
+
+        const filtered = contacts.filter(
+            (c) => friendIds.has(String(c._id)) && !blocked.has(String(c._id))
+        );
+
+        const messagedIds = new Set(filtered.map((c) => String(c._id)));
+        const missingFriendIds = [...friendIds].filter(
+            (id) => !messagedIds.has(id) && !blocked.has(id)
+        );
+
+        let extra = [];
+        if (missingFriendIds.length) {
+            extra = await User.find({ _id: { $in: missingFriendIds } })
+                .select("email firstName lastName image color")
+                .lean();
+            extra = extra.map((u) => ({
+                _id: u._id,
+                email: u.email,
+                firstName: u.firstName,
+                lastName: u.lastName,
+                image: u.image,
+                color: u.color,
+                lastMessageTime: null
+            }));
+        }
+
+        const merged = [...filtered, ...extra].sort((a, b) => {
+            const ta = a.lastMessageTime ? new Date(a.lastMessageTime).getTime() : 0;
+            const tb = b.lastMessageTime ? new Date(b.lastMessageTime).getTime() : 0;
+            if (tb !== ta) return tb - ta;
+            return String(a.firstName || a.email).localeCompare(String(b.firstName || b.email));
+        });
+
+        return res.status(200).json({ contacts: merged });
 
     } catch (error) {
         console.error(error);
@@ -96,7 +135,13 @@ const GetContactsForDirectMessagesList = async (req, res) => {
 
 const GetAllContact = async (req, res) => {
     try {
-        const users = await User.find({ _id: { $ne: req.userId } }, "firstName lastName _id") // get all User without sender request
+        const blocked = await getBlockedUserIds(req.userId);
+        const blockedArr = [...blocked].map((id) => new mongoose.Types.ObjectId(id));
+
+        const users = await User.find(
+            { _id: { $ne: req.userId, $nin: blockedArr } },
+            "firstName lastName email _id image color"
+        );
 
         const contacts = users.map((user) => ({
             label: user.firstName ? `${user.firstName} ${user.lastName}` : user.email,

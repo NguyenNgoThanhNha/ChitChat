@@ -161,29 +161,55 @@ const RemoveChannelMember = async (req, res) => {
     }
 };
 
+const populateMessage = [
+    { path: "sender", select: "firstName lastName email _id image color" },
+    { path: "recipient", select: "firstName lastName email _id image color" },
+    {
+        path: "replyTo",
+        select: "content messageType fileUrl sender timestamp isDeleted",
+        populate: { path: "sender", select: "firstName lastName email _id image color" }
+    },
+    { path: "reactions.user", select: "firstName lastName email _id image color" }
+];
+
 const GetChannelMessages = async (req, res) => {
     try {
         const { channelId } = req.params;
-        const channel = await Channel.findById(channelId).populate({
-            path: "messages",
-            populate: [
-                { path: "sender", select: "firstName lastName email _id image color" },
-                { path: "recipient", select: "firstName lastName email _id image color" },
-                {
-                    path: "replyTo",
-                    select: "content messageType fileUrl sender timestamp isDeleted",
-                    populate: { path: "sender", select: "firstName lastName email _id image color" }
-                },
-                { path: "reactions.user", select: "firstName lastName email _id image color" }
-            ]
-        });
-
+        const channel = await Channel.findById(channelId).select("members admin");
         if (!channel) {
             return res.status(404).json({ message: "Channel not found" });
         }
 
-        const messages = channel.messages;
-        return res.status(200).json({ messages });
+        const uid = req.userId;
+        const isMember =
+            channel.admin.toString() === uid ||
+            channel.members.some((m) => m.toString() === uid);
+        if (!isMember) {
+            return res.status(403).json({ message: "Not a member" });
+        }
+
+        const limit = Math.min(
+            100,
+            Math.max(1, parseInt(req.query.limit, 10) || 50)
+        );
+        const before = req.query.before;
+        const filter = { channel: channelId };
+
+        if (before && mongoose.Types.ObjectId.isValid(before)) {
+            const anchor = await Message.findById(before).select("timestamp");
+            if (anchor) filter.timestamp = { $lt: anchor.timestamp };
+        }
+
+        const batch = await Message.find(filter)
+            .sort({ timestamp: -1 })
+            .limit(limit + 1)
+            .populate(populateMessage);
+
+        const hasMore = batch.length > limit;
+        const slice = hasMore ? batch.slice(0, limit) : batch;
+        const messages = slice.reverse();
+
+        return res.status(200).json({ messages, hasMore });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Something went wrong" });

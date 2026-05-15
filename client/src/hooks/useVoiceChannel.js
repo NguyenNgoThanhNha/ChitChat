@@ -125,16 +125,22 @@ export function useVoiceChannel(socket, channelId, userId) {
             if (uid) closePeer(uid);
         };
 
+        const onJoined = ({ userId: uid }) => {
+            if (uid && uid !== userId) sendOffer(uid);
+        };
+
         const onSignal = (payload) => {
             if (payload.channelId === channelId) handleSignal(payload);
         };
 
         socket.on("voice-room-peers", onPeers);
+        socket.on("voice-user-joined", onJoined);
         socket.on("voice-user-left", onLeft);
         socket.on("voice-signal", onSignal);
 
         return () => {
             socket.off("voice-room-peers", onPeers);
+            socket.off("voice-user-joined", onJoined);
             socket.off("voice-user-left", onLeft);
             socket.off("voice-signal", onSignal);
         };

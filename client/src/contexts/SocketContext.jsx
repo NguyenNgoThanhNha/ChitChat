@@ -3,6 +3,7 @@ import { HOST } from "@/utils/constant";
 import { io } from "socket.io-client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { playMessageSound } from "@/lib/messageSound";
+import { toast } from "sonner";
 
 const sid = (a, b) => String(a ?? "") === String(b ?? "");
 
@@ -137,12 +138,29 @@ export const SocketProvider = ({ children }) => {
         };
 
         const handleReadReceiptUpdated = (payload) => {
-            const { selectedChatType, selectedChatData, setDmReadState } = useAppStore.getState();
+            const state = useAppStore.getState();
+            const { selectedChatType, selectedChatData, setDmReadState, setChannelReadReceipts } = state;
+
             if (payload.kind === "dm" && selectedChatType === "contact" && selectedChatData?._id === payload.readerId) {
                 setDmReadState({
-                    ...useAppStore.getState().dmReadState,
+                    ...state.dmReadState,
                     theirLastRead: payload.lastReadMessageId
                 });
+                return;
+            }
+
+            if (
+                payload.kind === "channel" &&
+                selectedChatType === "channel" &&
+                selectedChatData?._id === payload.contextId
+            ) {
+                const receipts = [...state.channelReadReceipts];
+                const readerId = String(payload.readerId);
+                const idx = receipts.findIndex((r) => String(r.user) === readerId);
+                const row = { user: readerId, lastReadMessage: payload.lastReadMessageId };
+                if (idx >= 0) receipts[idx] = row;
+                else receipts.push(row);
+                setChannelReadReceipts(receipts);
             }
         };
 
@@ -158,6 +176,10 @@ export const SocketProvider = ({ children }) => {
         s.on("typing", handleTyping);
         s.on("typingStop", handleTypingStop);
         s.on("readReceiptUpdated", handleReadReceiptUpdated);
+
+        s.on("dmError", (payload) => {
+            toast.error(payload?.message || "Cannot send message");
+        });
 
         return () => {
             s.removeAllListeners();

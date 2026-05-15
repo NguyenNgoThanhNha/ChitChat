@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import ProfileInfo from './profile-info/ProfileInfo';
 import NewDM from './new-dm/NewDM';
+import FriendRequests from './friend-requests/FriendRequests';
 import { apiClient } from '@/lib/api.client';
 import { GET_ALL_USER_CHANNELS_ROUTE, GET_CONTACT_FOR_DM_ROUTE } from '@/utils/constant';
 import { useAppStore } from '@/store/store';
@@ -19,6 +20,17 @@ const ContactContainer = () => {
         setselectedChatMessages
     } = useAppStore();
     const restoredRef = useRef(false);
+
+    const refreshDmContacts = async () => {
+        try {
+            const cRes = await apiClient.get(GET_CONTACT_FOR_DM_ROUTE, { withCredentials: true });
+            if (cRes.status === 200 && cRes.data.contacts) {
+                setDirectMessagesContacts(cRes.data.contacts);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     useEffect(() => {
         let cancelled = false;
@@ -69,8 +81,9 @@ const ContactContainer = () => {
             <div className='my-5'>
                 <div className='flex items-center justify-between pr-10'>
                     <Title text="Direct Message" />
-                    <NewDM />
+                    <NewDM onContactsUpdated={refreshDmContacts} />
                 </div>
+                <FriendRequests onUpdated={refreshDmContacts} />
                 <div className='max-h-[38vh] overflow-y-auto scrollbar-hidden'>
                     <ContactList contacts={directMessagesContacts} />
                 </div>

@@ -30,6 +30,18 @@ const populateMessage = [
     { path: "reactions.user", select: "firstName lastName email _id image color" }
 ];
 
+const DEFAULT_MSG_LIMIT = 50;
+const MAX_MSG_LIMIT = 100;
+
+const parseMessagePagination = (req) => {
+    const limit = Math.min(
+        MAX_MSG_LIMIT,
+        Math.max(1, parseInt(req.query.limit, 10) || DEFAULT_MSG_LIMIT)
+    );
+    const before = req.query.before;
+    return { limit, before };
+};
+
 const GetMessages = async (req, res) => {
     try {
         const user1 = req.userId;
@@ -39,14 +51,29 @@ const GetMessages = async (req, res) => {
             return res.status(400).json({ error: "Both user IDs are required." });
         }
 
-        const messages = await Message.find({
+        const { limit, before } = parseMessagePagination(req);
+        const filter = {
             $or: [
                 { sender: user1, recipient: user2 },
                 { sender: user2, recipient: user1 }
             ]
-        }).sort({ timestamp: 1 }).populate(populateMessage);
+        };
 
-        return res.status(200).json({ messages });
+        if (before && mongoose.Types.ObjectId.isValid(before)) {
+            const anchor = await Message.findById(before).select("timestamp");
+            if (anchor) filter.timestamp = { $lt: anchor.timestamp };
+        }
+
+        const batch = await Message.find(filter)
+            .sort({ timestamp: -1 })
+            .limit(limit + 1)
+            .populate(populateMessage);
+
+        const hasMore = batch.length > limit;
+        const slice = hasMore ? batch.slice(0, limit) : batch;
+        const messages = slice.reverse();
+
+        return res.status(200).json({ messages, hasMore });
 
     } catch (error) {
         console.error(error);

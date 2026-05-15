@@ -7,6 +7,7 @@ import { HOST, SIGNOUT_ROUTE } from '@/utils/constant';
 import { saveActiveChat } from '@/store/chatPersistence';
 import React, { useEffect, useState } from 'react'
 import { FiEdit2, FiBookOpen } from 'react-icons/fi';
+import { HiOutlineShoppingBag } from 'react-icons/hi';
 import { IoPowerSharp } from 'react-icons/io5';
 import { HiOutlineSpeakerWave, HiOutlineSpeakerXMark } from 'react-icons/hi2';
 import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
@@ -75,6 +76,21 @@ const ProfileInfo = () => {
             </div>
             <div className="flex gap-1 sm:gap-2 shrink-0 items-center">
                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button
+                                type="button"
+                                className="rounded-md p-2 text-neutral-600 dark:text-neutral-400 hover:text-[#8417ff] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                onClick={() => navigate("/shop")}
+                                aria-label="Shop"
+                            >
+                                <HiOutlineShoppingBag className="text-xl" />
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-[#1c1b1e] border border-[#2f303b] text-white">
+                            Shop
+                        </TooltipContent>
+                    </Tooltip>
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <button

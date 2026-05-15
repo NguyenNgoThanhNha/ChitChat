@@ -9,7 +9,8 @@ import {
     HOST,
     MARK_READ_ROUTE,
     READ_STATE_ROUTE,
-    REACT_MESSAGE_ROUTE
+    REACT_MESSAGE_ROUTE,
+    DEFAULT_MESSAGE_PAGE_SIZE
 } from '@/utils/constant';
 import { MdFolderZip } from "react-icons/md"
 import { IoMdArrowRoundDown } from "react-icons/io"
@@ -27,6 +28,9 @@ const quickReactions = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
 const MessageContainer = () => {
     const scrollRef = useRef();
+    const listRef = useRef();
+    const shouldScrollToBottom = useRef(true);
+    const prevScrollHeight = useRef(0);
     const {
         selectedChatData,
         selectedChatType,
@@ -38,48 +42,112 @@ const MessageContainer = () => {
         setReplyToMessage,
         dmReadState,
         setDmReadState,
+        channelReadReceipts,
+        setChannelReadReceipts,
+        hasMoreMessages,
+        setHasMoreMessages,
+        loadingOlderMessages,
+        setLoadingOlderMessages,
+        prependMessages,
         highlightMessageId,
         setHighlightMessageId,
         typingPeers,
         directMessagesContacts
     } = useAppStore();
+    const myUserId = userInfo?.id ?? userInfo?._id;
     const [showImage, setShowImage] = useState(false);
     const [imageUrl, setImageUrl] = useState(null);
     const [editOpen, setEditOpen] = useState(false);
     const [editContent, setEditContent] = useState("");
     const [editId, setEditId] = useState(null);
 
-    useEffect(() => {
-        const getMessages = async () => {
-            try {
-                const response = await apiClient.post(GET_MESSAGE_ROUTE, { id: selectedChatData._id }, { withCredentials: true })
-                if (response.status === 200 && response.data.messages) {
-                    setselectedChatMessages(response.data.messages)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        }
-
-        const getMessagesChannels = async () => {
-            try {
-                const response = await apiClient.get(`${GET_CHANNELS_MESSAGES_ROUTE}/${selectedChatData._id}`, { withCredentials: true })
-                if (response.status === 200 && response.data.messages) {
-                    setselectedChatMessages(response.data.messages)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        }
-
-        if (selectedChatData._id) {
+    const loadInitialMessages = async () => {
+        if (!selectedChatData?._id) return;
+        const params = { limit: DEFAULT_MESSAGE_PAGE_SIZE };
+        try {
             if (selectedChatType === "contact") {
-                getMessages();
+                const response = await apiClient.post(
+                    GET_MESSAGE_ROUTE,
+                    { id: selectedChatData._id },
+                    { params, withCredentials: true }
+                );
+                if (response.status === 200) {
+                    setselectedChatMessages(response.data.messages || []);
+                    setHasMoreMessages(!!response.data.hasMore);
+                }
             } else if (selectedChatType === "channel") {
-                getMessagesChannels();
+                const response = await apiClient.get(
+                    `${GET_CHANNELS_MESSAGES_ROUTE}/${selectedChatData._id}`,
+                    { params, withCredentials: true }
+                );
+                if (response.status === 200) {
+                    setselectedChatMessages(response.data.messages || []);
+                    setHasMoreMessages(!!response.data.hasMore);
+                }
             }
+            shouldScrollToBottom.current = true;
+        } catch (error) {
+            console.log(error);
         }
-    }, [selectedChatData, selectedChatType, setselectedChatMessages])
+    };
+
+    useEffect(() => {
+        if (!selectedChatData?._id) return;
+        setHasMoreMessages(false);
+        setselectedChatMessages([]);
+        loadInitialMessages();
+    }, [selectedChatData?._id, selectedChatType]);
+
+    const loadOlderMessages = async () => {
+        if (!hasMoreMessages || loadingOlderMessages || !selectedChatMessages.length) return;
+        const before = selectedChatMessages[0]._id;
+        const params = { limit: DEFAULT_MESSAGE_PAGE_SIZE, before };
+        setLoadingOlderMessages(true);
+        prevScrollHeight.current = listRef.current?.scrollHeight || 0;
+
+        try {
+            if (selectedChatType === "contact") {
+                const response = await apiClient.post(
+                    GET_MESSAGE_ROUTE,
+                    { id: selectedChatData._id },
+                    { params, withCredentials: true }
+                );
+                if (response.status === 200 && response.data.messages?.length) {
+                    prependMessages(response.data.messages);
+                    setHasMoreMessages(!!response.data.hasMore);
+                    shouldScrollToBottom.current = false;
+                } else {
+                    setHasMoreMessages(false);
+                }
+            } else if (selectedChatType === "channel") {
+                const response = await apiClient.get(
+                    `${GET_CHANNELS_MESSAGES_ROUTE}/${selectedChatData._id}`,
+                    { params, withCredentials: true }
+                );
+                if (response.status === 200 && response.data.messages?.length) {
+                    prependMessages(response.data.messages);
+                    setHasMoreMessages(!!response.data.hasMore);
+                    shouldScrollToBottom.current = false;
+                } else {
+                    setHasMoreMessages(false);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoadingOlderMessages(false);
+            requestAnimationFrame(() => {
+                const el = listRef.current;
+                if (el) {
+                    el.scrollTop = el.scrollHeight - prevScrollHeight.current;
+                }
+            });
+        }
+    };
+
+    const handleListScroll = (e) => {
+        if (e.target.scrollTop < 80) loadOlderMessages();
+    };
 
     useEffect(() => {
         const loadRead = async () => {
@@ -91,13 +159,23 @@ const MessageContainer = () => {
                         withCredentials: true
                     });
                     if (res.data) setDmReadState({ myLastRead: res.data.myLastRead, theirLastRead: res.data.theirLastRead });
+                } else if (selectedChatType === "channel") {
+                    const res = await apiClient.get(READ_STATE_ROUTE, {
+                        params: { kind: "channel", contextId: selectedChatData._id },
+                        withCredentials: true
+                    });
+                    const receipts = (res.data?.receipts || []).map((r) => ({
+                        user: String(r.user),
+                        lastReadMessage: r.lastReadMessage ? String(r.lastReadMessage) : null
+                    }));
+                    setChannelReadReceipts(receipts);
                 }
             } catch (e) {
                 console.log(e);
             }
         };
         loadRead();
-    }, [selectedChatData?._id, selectedChatType, setDmReadState]);
+    }, [selectedChatData?._id, selectedChatType, setDmReadState, setChannelReadReceipts]);
 
     useEffect(() => {
         const last = selectedChatMessages[selectedChatMessages.length - 1];
@@ -109,7 +187,19 @@ const MessageContainer = () => {
                     contextId: selectedChatData._id,
                     lastReadMessageId: last._id
                 }, { withCredentials: true });
-                setDmReadState((prev) => ({ ...prev, myLastRead: last._id }));
+                if (selectedChatType === "contact") {
+                    setDmReadState((prev) => ({ ...prev, myLastRead: last._id }));
+                } else if (selectedChatType === "channel") {
+                    const uid = String(myUserId);
+                    setChannelReadReceipts((prev) => {
+                        const next = [...prev];
+                        const idx = next.findIndex((r) => String(r.user) === uid);
+                        const row = { user: uid, lastReadMessage: String(last._id) };
+                        if (idx >= 0) next[idx] = row;
+                        else next.push(row);
+                        return next;
+                    });
+                }
             } catch (e) {
                 /* ignore */
             }
@@ -124,11 +214,23 @@ const MessageContainer = () => {
         setHighlightMessageId(null);
     }, [highlightMessageId, selectedChatMessages, setHighlightMessageId]);
 
+    const prevMessageCount = useRef(0);
+
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: "smooth" })
+        if (loadingOlderMessages) {
+            prevMessageCount.current = selectedChatMessages.length;
+            return;
         }
-    }, [selectedChatMessages])
+        if (selectedChatMessages.length > prevMessageCount.current) {
+            shouldScrollToBottom.current = true;
+        }
+        prevMessageCount.current = selectedChatMessages.length;
+
+        if (!shouldScrollToBottom.current) return;
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [selectedChatMessages, loadingOlderMessages]);
 
     const downloadFile = async (url) => {
         try {
@@ -166,7 +268,7 @@ const MessageContainer = () => {
 
     const isPeerRead = (message) => {
         if (selectedChatType !== "contact" || !dmReadState?.theirLastRead || !message?._id) return false;
-        const mine = sid(message.sender, userInfo.id) || sid(message.sender?._id, userInfo.id);
+        const mine = sid(message.sender, myUserId) || sid(message.sender?._id, myUserId);
         if (!mine) return false;
         const ids = selectedChatMessages.map((m) => m._id.toString());
         const readIdx = ids.indexOf(String(dmReadState.theirLastRead));
@@ -175,11 +277,39 @@ const MessageContainer = () => {
         return msgIdx <= readIdx;
     };
 
+    const getChannelReaderNames = (message) => {
+        if (selectedChatType !== "channel" || !message?._id) return [];
+        const mine = sid(message.sender?._id, myUserId) || sid(message.sender, myUserId);
+        if (!mine) return [];
+        const ids = selectedChatMessages.map((m) => String(m._id));
+        const msgIdx = ids.indexOf(String(message._id));
+        if (msgIdx < 0) return [];
+
+        const receipts = Array.isArray(channelReadReceipts) ? channelReadReceipts : [];
+
+        const members = [
+            ...(selectedChatData?.members || []),
+            selectedChatData?.admin
+        ].filter(Boolean);
+
+        return receipts
+            .filter((r) => {
+                if (String(r.user) === String(myUserId) || !r.lastReadMessage) return false;
+                const readIdx = ids.indexOf(String(r.lastReadMessage));
+                return readIdx >= 0 && msgIdx <= readIdx;
+            })
+            .map((r) => {
+                const m = members.find((x) => sid(x?._id ?? x, r.user));
+                if (m?.firstName) return `${m.firstName}${m.lastName ? ` ${m.lastName}` : ""}`.trim();
+                return m?.email || "Member";
+            });
+    };
+
     const canModerateChannel = () => {
         if (selectedChatType !== "channel" || !selectedChatData) return false;
-        if (sid(selectedChatData.admin?._id ?? selectedChatData.admin, userInfo.id)) return true;
+        if (sid(selectedChatData.admin?._id ?? selectedChatData.admin, myUserId)) return true;
         return selectedChatData.memberRoles?.some(
-            (r) => sid(r.user?._id ?? r.user, userInfo.id) && r.role === "moderator"
+            (r) => sid(r.user?._id ?? r.user, myUserId) && r.role === "moderator"
         );
     };
 
@@ -261,7 +391,7 @@ const MessageContainer = () => {
             const k = r.emoji;
             if (!groups[k]) groups[k] = { count: 0, mine: false };
             groups[k].count += 1;
-            if (sid(r.user?._id ?? r.user, userInfo.id)) groups[k].mine = true;
+            if (sid(r.user?._id ?? r.user, myUserId)) groups[k].mine = true;
         });
         return (
             <div className={`flex flex-wrap gap-1 mt-1 ${isMine ? "justify-end" : "justify-start"}`}>
@@ -353,7 +483,11 @@ const MessageContainer = () => {
     }
 
     const renderChannelMessages = (message) => {
-        const isMine = sid(message.sender?._id, userInfo.id);
+        const isMine = sid(message.sender?._id, myUserId) || sid(message.sender, myUserId);
+        const senderInitial =
+            message.sender?.firstName?.charAt(0) ||
+            message.sender?.email?.charAt(0) ||
+            "?";
         return (
             <div data-msg-id={message._id} className={`mt-5 ${isMine ? "text-right" : "text-left"}`}>
                 {renderReplySnippet(message.replyTo)}
@@ -411,12 +545,16 @@ const MessageContainer = () => {
                                     }
 
                                     {
-                                        <AvatarFallback className={`uppercase h-8 w-8 text-lg flex items-center justify-center rounded-full ${getColor(message.sender.color)}`} >
-                                            {message.sender.firstName ? message.sender.firstName.split("").shift() : message.sender.email.split("").shift()}
+                                        <AvatarFallback className={`uppercase h-8 w-8 text-lg flex items-center justify-center rounded-full ${getColor(message.sender?.color)}`} >
+                                            {senderInitial}
                                         </AvatarFallback>
                                     }
                                 </Avatar>
-                                <span className='text-sm text-muted-foreground dark:text-white/60'>{`${message.sender.firstName} ${message.sender.lastName}`}</span>
+                                <span className='text-sm text-muted-foreground dark:text-white/60'>
+                                    {message.sender?.firstName
+                                        ? `${message.sender.firstName}${message.sender.lastName ? ` ${message.sender.lastName}` : ""}`
+                                        : message.sender?.email || "User"}
+                                </span>
                                 <span className='text-sm text-muted-foreground dark:text-white/60'>
                                     {
                                         moment(message.timestamp).format("LT")
@@ -427,9 +565,17 @@ const MessageContainer = () => {
                         :
                         (
                             <div className='text-sm text-muted-foreground dark:text-white/60 mt-1'>
-                                {
-                                    moment(message.timestamp).format("LT")
-                                }
+                                {moment(message.timestamp).format("LT")}
+                                {(() => {
+                                    const readers = getChannelReaderNames(message);
+                                    if (!readers.length) return null;
+                                    const label = readers.length > 2
+                                        ? `Seen by ${readers.slice(0, 2).join(", ")} +${readers.length - 2}`
+                                        : `Seen by ${readers.join(", ")}`;
+                                    return (
+                                        <span className="block text-[11px] text-[#8417ff] mt-0.5">{label}</span>
+                                    );
+                                })()}
                             </div>
                         )
                 }
@@ -464,7 +610,17 @@ const MessageContainer = () => {
                     <div className="text-xs text-muted-foreground truncate">{typingLabel()}</div>
                 </div>
             )}
-            <div className='flex-1 overflow-y-auto scrollbar-hidden p-4 px-6 md:px-10 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full bg-chat-surface text-foreground transition-colors duration-300'>
+            <div
+                ref={listRef}
+                onScroll={handleListScroll}
+                className="flex-1 overflow-y-auto scrollbar-hidden p-4 px-6 md:px-10 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full bg-chat-surface text-foreground transition-colors duration-300"
+            >
+                {loadingOlderMessages && (
+                    <div className="text-center text-xs text-muted-foreground py-2">Loading older messages…</div>
+                )}
+                {!loadingOlderMessages && hasMoreMessages && (
+                    <div className="text-center text-xs text-muted-foreground py-2">Scroll up for older messages</div>
+                )}
                 {renderMessages()}
                 <div ref={scrollRef} />
                 {

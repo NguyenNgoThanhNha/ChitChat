@@ -18,6 +18,9 @@ export const createChatSlice = (set, get) => (
         typingPeers: [],
         replyToMessage: null,
         dmReadState: { myLastRead: null, theirLastRead: null },
+        channelReadReceipts: [],
+        hasMoreMessages: false,
+        loadingOlderMessages: false,
         searchOpen: false,
         highlightMessageId: null,
 
@@ -48,7 +51,20 @@ export const createChatSlice = (set, get) => (
         setTypingPeers: (typingPeers) => set({ typingPeers }),
         setReplyToMessage: (replyToMessage) => set({ replyToMessage }),
         clearReplyToMessage: () => set({ replyToMessage: null }),
-        setDmReadState: (dmReadState) => set({ dmReadState }),
+        setDmReadState: (dmReadState) => set((state) => ({
+            dmReadState: typeof dmReadState === "function" ? dmReadState(state.dmReadState) : dmReadState
+        })),
+        setChannelReadReceipts: (channelReadReceipts) => set((state) => ({
+            channelReadReceipts:
+                typeof channelReadReceipts === "function"
+                    ? channelReadReceipts(state.channelReadReceipts)
+                    : channelReadReceipts
+        })),
+        setHasMoreMessages: (hasMoreMessages) => set({ hasMoreMessages }),
+        setLoadingOlderMessages: (loadingOlderMessages) => set({ loadingOlderMessages }),
+        prependMessages: (olderMessages) => set({
+            selectedChatMessages: [...olderMessages, ...get().selectedChatMessages]
+        }),
         setSearchOpen: (searchOpen) => set({ searchOpen }),
         setHighlightMessageId: (highlightMessageId) => set({ highlightMessageId }),
 
@@ -61,6 +77,9 @@ export const createChatSlice = (set, get) => (
                 typingPeers: [],
                 replyToMessage: null,
                 dmReadState: { myLastRead: null, theirLastRead: null },
+                channelReadReceipts: [],
+                hasMoreMessages: false,
+                loadingOlderMessages: false,
                 highlightMessageId: null
             });
         },
@@ -189,6 +208,9 @@ export const createChatSlice = (set, get) => (
                               typingPeers: [],
                               replyToMessage: null,
                               dmReadState: { myLastRead: null, theirLastRead: null },
+                              channelReadReceipts: [],
+                              hasMoreMessages: false,
+                              loadingOlderMessages: false,
                               highlightMessageId: null
                           }
                         : {})
