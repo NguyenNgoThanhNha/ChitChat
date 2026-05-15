@@ -2,7 +2,10 @@ import jwt from "jsonwebtoken";
 import User from "../models/UserModel.js";
 import { compare } from "bcrypt";
 import { renameSync, unlinkSync } from "fs"
+import { getJwtCookieOptions } from "../utils/jwtCookieOptions.js";
+
 const maxAge = 3 * 24 * 60 * 60 * 1000;
+const jwtCookie = () => ({ ...getJwtCookieOptions(), maxAge });
 const createToken = (email, userId) => {
     return jwt.sign({ email, userId }, process.env.JWT_KEY, {
         expiresIn: maxAge
@@ -24,11 +27,7 @@ const SignUp = async (req, res) => {
         const user = await User.create({ email, password: password });
         await user.save();
 
-        res.cookie("jwt", createToken(user.email, user.id), {
-            maxAge,
-            secure: true,
-            sameSite: "None"
-        })
+        res.cookie("jwt", createToken(user.email, user.id), jwtCookie())
         return res.status(201).json({
             user: {
                 id: user.id,
@@ -59,11 +58,7 @@ const SignIn = async (req, res) => {
             return res.status(400).json({ message: "Password is incorrect!" })
         }
 
-        res.cookie("jwt", createToken(userExits.email, userExits.id), {
-            maxAge,
-            secure: true,
-            sameSite: "None"
-        })
+        res.cookie("jwt", createToken(userExits.email, userExits.id), jwtCookie())
         return res.status(200).json({
             user: {
                 id: userExits.id,
@@ -84,7 +79,7 @@ const SignIn = async (req, res) => {
 
 const SignOut = async (req, res) => {
     try {
-        res.cookie("jwt", "", { maxAge: 1, secure: true, sameSite: "None" })
+        res.clearCookie("jwt", getJwtCookieOptions())
         return res.status(200).json({ message: "Sign out successfully." })
     } catch (error) {
         console.log(error);

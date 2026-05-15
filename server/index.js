@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import router from "./src/routers/index.js"
 import setupSocket from "./src/socket.js";
+import { getAllowedOrigins } from "./src/utils/jwtCookieOptions.js";
 dotenv.config();
 
 mongoose.connect(process.env.DATABASE_URL).then(() => {
@@ -16,8 +17,14 @@ const port = process.env.PORT || 3001;
 
 app.set("trust proxy", 1);
 
+const allowedOrigins = getAllowedOrigins();
+
 app.use(cors({
-    origin: [process.env.ORIGIN],
+    origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(null, false);
+    },
     credentials: true
 }))
 

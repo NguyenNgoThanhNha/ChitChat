@@ -3,10 +3,13 @@ import Message from "./models/MessageModel.js";
 import Channel from "./models/ChannelModel.js";
 import { canSendDm } from "./utils/socialGraph.js";
 
+import { getAllowedOrigins } from "./utils/jwtCookieOptions.js";
+
 const setupSocket = (server, app) => {
+    const allowedOrigins = getAllowedOrigins();
     const io = new SocketIoServer(server, {
         cors: {
-            origin: process.env.ORIGIN,
+            origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
             methods: ["GET", "POST"],
             credentials: true
         }
