@@ -16,6 +16,8 @@ import { FiArrowLeft, FiShoppingCart, FiSearch, FiMessageCircle } from "react-ic
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import { AnimatedPage, AnimatedPageHeader, AnimatedPageMain, staggerStyle } from "@/components/layout/AnimatedPage";
+import { ProductGridSkeleton } from "@/components/layout/ProductGridSkeleton";
+import { EmptyState } from "@/components/layout/EmptyState";
 
 const formatPrice = (n) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
@@ -130,9 +132,23 @@ const Shop = () => {
                 </form>
 
                 {loading ? (
-                    <p className="text-center text-muted-foreground py-12">Loading…</p>
+                    <ProductGridSkeleton />
                 ) : products.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-12">No products yet. Be the first to sell!</p>
+                    <EmptyState
+                        icon={HiOutlineShoppingBag}
+                        title="No products yet"
+                        description="Be the first to list something in the shop."
+                        action={
+                            <button
+                                type="button"
+                                onClick={() => navigate("/shop/sell")}
+                                className="auth-shimmer-btn px-5 py-2 rounded-xl bg-[#8417ff] text-white text-sm font-medium"
+                            >
+                                Start selling
+                            </button>
+                        }
+                        className="py-12"
+                    />
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {products.map((p, idx) => (

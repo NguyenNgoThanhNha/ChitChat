@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Auth from './pages/auth/Auth'
 import Profile from './pages/profile/Profile'
 import Chat from './pages/chat/Chat'
@@ -16,47 +16,42 @@ import Loading from './components/Loading'
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
-  const isAuthenticated = !!userInfo;
-  return isAuthenticated ? children : <Navigate to="/auth" />
-}
+  if (!userInfo) return <Navigate to="/auth" replace />;
+  return children;
+};
 
-// handle after login then not navigate to login
 const AuthRoute = ({ children }) => {
   const { userInfo } = useAppStore();
-  const isAuthenticated = !!userInfo;
-  return isAuthenticated ? <Navigate to="/chat" /> : children
-}
+  if (userInfo) return <Navigate to="/chat" replace />;
+  return children;
+};
 
 function App() {
   const { userInfo, setUserInfo } = useAppStore();
-  const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    const getUserData = async () => {
+    let cancelled = false;
+    (async () => {
       try {
         const response = await apiClient.get(GET_USER_INFO_ROUTE, { withCredentials: true });
-        if (response.status === 200 && response.data.user) {
-          setUserInfo(response.data.user) // set user info to zustand
-        } else {
-          setUserInfo(undefined)
+        if (!cancelled && response.status === 200 && response.data.user) {
+          setUserInfo(response.data.user);
+        } else if (!cancelled) {
+          setUserInfo(null);
         }
-      } catch (error) {
-        // toast.error(error.response?.data?.message || "Get Info User Failed");
-        setUserInfo(undefined)
+      } catch {
+        if (!cancelled) setUserInfo(null);
       } finally {
-        setLoading(false)
+        if (!cancelled) setAuthChecked(true);
       }
-    };
-    if (!userInfo) {
-      getUserData();
-    } else {
-      setLoading(false)
-    }
-  }, [userInfo])
+    })();
+    return () => { cancelled = true; };
+  }, [setUserInfo]);
 
-  // if (loading) {
-  //   return <Loading />
-  // }
+  if (!authChecked) {
+    return <Loading />;
+  }
 
   return (
     <BrowserRouter>
@@ -74,7 +69,7 @@ function App() {
         <Route path='*' element={<Navigate to="/chat" replace />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
 export default App

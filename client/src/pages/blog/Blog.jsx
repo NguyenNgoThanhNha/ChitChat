@@ -18,10 +18,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useConfirmUi } from "@/store/confirm-ui";
 import { FaRegCommentDots, FaRegHeart, FaHeart } from "react-icons/fa";
-import { FiShare2, FiArrowLeft, FiSend, FiPaperclip, FiX } from "react-icons/fi";
+import { FiShare2, FiArrowLeft, FiSend, FiPaperclip, FiX, FiBookOpen } from "react-icons/fi";
 import { IoTrashOutline } from "react-icons/io5";
 import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import { AnimatedPage, AnimatedPageHeader, AnimatedPageMain, staggerStyle } from "@/components/layout/AnimatedPage";
+import { PostListSkeleton } from "@/components/layout/ProductGridSkeleton";
+import { EmptyState } from "@/components/layout/EmptyState";
 
 const extOf = (path) => {
     const n = String(path).split(/[/\\]/).pop() || "";
@@ -305,11 +307,16 @@ const Blog = () => {
             </AnimatedPageHeader>
 
             <AnimatedPageMain className="max-w-xl mx-auto px-4 py-6 space-y-4 pb-24">
-                {loading && <p className="text-center text-muted-foreground py-10">Loading…</p>}
+                {loading && <PostListSkeleton />}
                 {!loading && posts.length === 0 && (
-                    <p className="text-center text-muted-foreground py-10">No posts yet. Be the first to share!</p>
+                    <EmptyState
+                        icon={FiBookOpen}
+                        title="No posts yet"
+                        description="Share something with the community — tap + to create your first post."
+                        className="py-10"
+                    />
                 )}
-                {posts.map((post, idx) => (
+                {!loading && posts.map((post, idx) => (
                     <article
                         key={post._id}
                         id={`post-${post._id}`}

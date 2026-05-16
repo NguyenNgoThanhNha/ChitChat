@@ -3,8 +3,10 @@ import React from 'react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { getColor } from '@/lib/utils';
 import { HOST } from '@/utils/constant';
+import { EmptyState } from '@/components/layout/EmptyState';
+import { HiOutlineUserGroup, HiHashtag } from 'react-icons/hi';
 
-const ContactList = ({ contacts, isChannel = false }) => {
+const ContactList = ({ contacts, isChannel = false, loading = false }) => {
   const {
     selectedChatType,
     selectedChatData,
@@ -27,6 +29,21 @@ const ContactList = ({ contacts, isChannel = false }) => {
     }
   };
 
+  if (!loading && (!contacts || contacts.length === 0)) {
+    return (
+      <EmptyState
+        icon={isChannel ? HiHashtag : HiOutlineUserGroup}
+        title={isChannel ? "No channels yet" : "No conversations yet"}
+        description={
+          isChannel
+            ? "Create a channel with + to start group chat."
+            : "Add friends with + to start messaging."
+        }
+        className="py-6"
+      />
+    );
+  }
+
   return (
     <div className='mt-2'>
       {contacts.map((contact, idx) => (
@@ -34,10 +51,10 @@ const ContactList = ({ contacts, isChannel = false }) => {
           key={contact._id}
           style={{ animationDelay: `${Math.min(idx, 12) * 35}ms` }}
           onClick={() => handleClick(contact)}
-            className={`page-stagger-item pl-8 py-2.5 mx-2 rounded-md cursor-pointer transition-all duration-200 ease-out
-            hover:bg-black/5 dark:hover:bg-[#f1f1f111] hover:translate-x-0.5 active:scale-[0.99]
+          className={`page-stagger-item pl-8 py-2.5 mx-2 rounded-md cursor-pointer transition-all duration-200 ease-out ui-interactive
+            hover:bg-black/5 dark:hover:bg-[#f1f1f111] hover:translate-x-0.5
             ${selectedChatData && selectedChatData._id === contact._id
-              ? "bg-[#8417ff] hover:bg-[#8417ff] text-white shadow-sm"
+              ? "bg-[#8417ff] hover:bg-[#8417ff] text-white shadow-sm shadow-[#8417ff]/20"
               : ""
             }`}
         >

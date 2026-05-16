@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { SidebarAppNav } from '@/components/layout/SidebarAppNav';
 import { UserMenu } from '@/components/layout/UserMenu';
 import NewDM from './new-dm/NewDM';
@@ -9,6 +9,7 @@ import ContactList from '@/components/ContactList';
 import CreateChanel from './create-channel/CreateChanel';
 import { readActiveChat } from '@/store/chatPersistence';
 import { cn } from '@/lib/utils';
+import { ListSkeleton } from '@/components/layout/EmptyState';
 
 const ContactContainer = () => {
     const {
@@ -22,6 +23,7 @@ const ContactContainer = () => {
         selectedChatType
     } = useAppStore();
     const restoredRef = useRef(false);
+    const [listsLoading, setListsLoading] = useState(true);
     const chatOpen = selectedChatType !== undefined;
 
     const refreshDmContacts = async () => {
@@ -71,6 +73,8 @@ const ContactContainer = () => {
                 }
             } catch (e) {
                 console.error(e);
+            } finally {
+                if (!cancelled) setListsLoading(false);
             }
         })();
         return () => { cancelled = true; };
@@ -94,7 +98,7 @@ const ContactContainer = () => {
                         <NewDM onContactsUpdated={refreshDmContacts} />
                     </div>
                     <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hidden overscroll-contain">
-                        <ContactList contacts={directMessagesContacts} />
+                        {listsLoading ? <ListSkeleton rows={3} /> : <ContactList contacts={directMessagesContacts} />}
                     </div>
                 </section>
                 <section className="flex flex-col min-h-0 flex-1">
@@ -103,7 +107,7 @@ const ContactContainer = () => {
                         <CreateChanel />
                     </div>
                     <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hidden overscroll-contain">
-                        <ContactList contacts={channels} isChannel={true} />
+                        {listsLoading ? <ListSkeleton rows={2} /> : <ContactList contacts={channels} isChannel />}
                     </div>
                 </section>
             </div>

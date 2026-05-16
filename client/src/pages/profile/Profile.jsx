@@ -34,8 +34,6 @@ const Profile = () => {
         }
     }, [userInfo, setUserInfo])
 
-    console.log(image)
-
     const validateProfile = () => {
         if (!firstName.length) {
             toast.error("First Name is required")

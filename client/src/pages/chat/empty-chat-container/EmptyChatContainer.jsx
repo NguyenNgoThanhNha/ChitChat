@@ -4,7 +4,7 @@ import Lottie from 'react-lottie'
 
 const EmptyChatContainer = () => {
     return (
-        <div className='flex-1 md:flex bg-chat-surface flex-col justify-center items-center hidden transition-colors animate-in fade-in duration-500'>
+        <div className='flex-1 flex bg-chat-surface flex-col justify-center items-center transition-colors animate-chat-fade min-h-0'>
             <div className="animate-in zoom-in-95 duration-500">
                 <Lottie isClickToPauseDisabled={true} height={200} width={200} options={animationDefaultOptions} />
             </div>
