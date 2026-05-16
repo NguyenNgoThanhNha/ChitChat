@@ -1,6 +1,7 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { cn, getColor } from "@/lib/utils";
 import { apiClient } from "@/lib/api.client";
+import { clearAuthToken } from "@/lib/authToken";
 import { useAppStore } from "@/store/store";
 import { HOST, SIGNOUT_ROUTE } from "@/utils/constant";
 import { saveActiveChat } from "@/store/chatPersistence";
@@ -58,12 +59,17 @@ export function UserMenu() {
             const response = await apiClient.post(SIGNOUT_ROUTE, {}, { withCredentials: true });
             if (response.status === 200) {
                 toast.success(response.data.message);
+                clearAuthToken();
                 saveActiveChat(null, null);
                 navigate("/auth");
                 setUserInfo(null);
             }
         } catch (error) {
             console.log(error);
+            clearAuthToken();
+            saveActiveChat(null, null);
+            setUserInfo(null);
+            navigate("/auth");
         }
     };
 

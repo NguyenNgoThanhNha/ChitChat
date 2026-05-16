@@ -27,14 +27,16 @@ const SignUp = async (req, res) => {
         const user = await User.create({ email, password: password });
         await user.save();
 
-        res.cookie("jwt", createToken(user.email, user.id), jwtCookie())
+        const token = createToken(user.email, user.id);
+        res.cookie("jwt", token, jwtCookie());
         return res.status(201).json({
+            token,
             user: {
                 id: user.id,
                 email: user.email,
                 profileSetup: user.profileSetup
             }
-        })
+        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Something went wrong" })
@@ -58,8 +60,10 @@ const SignIn = async (req, res) => {
             return res.status(400).json({ message: "Password is incorrect!" })
         }
 
-        res.cookie("jwt", createToken(userExits.email, userExits.id), jwtCookie())
+        const token = createToken(userExits.email, userExits.id);
+        res.cookie("jwt", token, jwtCookie());
         return res.status(200).json({
+            token,
             user: {
                 id: userExits.id,
                 email: userExits.email,
@@ -69,7 +73,7 @@ const SignIn = async (req, res) => {
                 image: userExits.image,
                 profileSetup: userExits.profileSetup
             }
-        })
+        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Something went wrong" })
@@ -79,8 +83,8 @@ const SignIn = async (req, res) => {
 
 const SignOut = async (req, res) => {
     try {
-        res.clearCookie("jwt", getJwtCookieOptions())
-        return res.status(200).json({ message: "Sign out successfully." })
+        res.clearCookie("jwt", getJwtCookieOptions());
+        return res.status(200).json({ message: "Sign out successfully." });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Something went wrong" })

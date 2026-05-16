@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api.client';
+import { setAuthToken } from '@/lib/authToken';
 import { SIGNIN_ROUTE, SIGNUP_ROUTE } from '@/utils/constant';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/store/store';
@@ -72,6 +73,7 @@ const Auth = () => {
             const response = await apiClient.post(SIGNIN_ROUTE, { email, password }, { withCredentials: true });
             if (response.status === 200) {
                 toast.success("Sign In Success!");
+                if (response.data.token) setAuthToken(response.data.token);
                 setUserInfo(response.data.user);
                 navigate(response.data.user.profileSetup ? "/chat" : "/profile");
             }
@@ -91,6 +93,7 @@ const Auth = () => {
             const response = await apiClient.post(SIGNUP_ROUTE, { email, password }, { withCredentials: true });
             if (response.status === 201) {
                 toast.success("Sign Up Account Success!");
+                if (response.data.token) setAuthToken(response.data.token);
                 setUserInfo(response.data.user);
                 navigate("/profile");
             }
